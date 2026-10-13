@@ -1,0 +1,724 @@
+<!doctype html>
+<html lang="de">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SUPER VOLT Display Small – Flasher</title>
+
+    <style>
+        :root {
+            --bg: #090b0f;
+            --surface: #12161d;
+            --surface-2: #171c24;
+            --border: #29313d;
+            --text: #f4f6f8;
+            --muted: #98a3b2;
+            --blue: #00a8e8;
+            --green: #4de09b;
+            --green-dark: #0c2b20;
+            --red: #ff6f7f;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            color: var(--text);
+            background: var(--bg);
+            font-family: Inter, Arial, sans-serif;
+        }
+
+        .page {
+            width: min(720px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 28px 0 64px;
+        }
+
+        header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            min-height: 64px;
+        }
+
+        .repository-link {
+            color: var(--muted);
+            font-size: 0.8rem;
+            text-decoration: none;
+        }
+
+        .repository-link:hover {
+            color: var(--text);
+        }
+
+        .logo {
+            width: 165px;
+            height: auto;
+        }
+
+        main {
+            padding-top: 32px;
+        }
+
+        .eyebrow {
+            margin: 0 0 10px;
+            color: var(--blue);
+            font-size: 0.74rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(2.1rem, 7vw, 3.25rem);
+            line-height: 1.05;
+            letter-spacing: -0.045em;
+        }
+
+        h2 {
+            margin: 0;
+            font-size: 1.05rem;
+            letter-spacing: -0.01em;
+        }
+
+        .intro {
+            max-width: 620px;
+            margin: 18px 0 30px;
+            color: var(--muted);
+            line-height: 1.65;
+        }
+
+        .card {
+            padding: 23px;
+            margin-top: 18px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+        }
+
+        .display-preview {
+            position: relative;
+            display: grid;
+            place-items: center;
+            height: 235px;
+            margin-bottom: 22px;
+            overflow: hidden;
+            background: #0d1117;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+
+        .display-device {
+            width: 154px;
+            height: 182px;
+            padding: 9px;
+            background: #202833;
+            border: 2px solid #3d4755;
+            border-radius: 24px;
+            box-shadow: 0 18px 35px rgba(0, 0, 0, 0.48);
+        }
+
+        .display-screen {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #07141d;
+            border-radius: 16px;
+        }
+
+        .screen-brand {
+            padding: 14px 14px 0;
+            color: #8f9ead;
+            font-size: 0.48rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+        }
+
+        .screen-speed {
+            margin-top: 17px;
+            font-size: 3rem;
+            font-weight: 700;
+            line-height: 1;
+            letter-spacing: -0.1em;
+            text-align: center;
+        }
+
+        .screen-unit {
+            margin-top: 5px;
+            color: var(--blue);
+            font-size: 0.55rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-align: center;
+        }
+
+        .screen-line {
+            position: absolute;
+            right: 15px;
+            bottom: 27px;
+            left: 15px;
+            height: 3px;
+            background: var(--blue);
+            border-radius: 4px;
+        }
+
+        .screen-status {
+            position: absolute;
+            bottom: 12px;
+            left: 15px;
+            color: #b4c0cc;
+            font-size: 0.48rem;
+        }
+
+        .preview-caption {
+            position: absolute;
+            right: 14px;
+            bottom: 12px;
+            color: #687586;
+            font-size: 0.67rem;
+        }
+
+        .description {
+            margin: 10px 0 0;
+            color: var(--muted);
+            font-size: 0.92rem;
+            line-height: 1.65;
+        }
+
+        .description strong {
+            color: var(--text);
+        }
+
+        .facts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 18px;
+        }
+
+        .fact {
+            padding: 6px 9px;
+            color: #b3bfcb;
+            font-size: 0.75rem;
+            background: #0d1117;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+        }
+
+        .requirements {
+            margin: 17px 0 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .requirements li {
+            position: relative;
+            padding: 10px 0 10px 19px;
+            color: var(--muted);
+            font-size: 0.88rem;
+            line-height: 1.45;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .requirements li:last-child {
+            border-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .requirements li::before {
+            position: absolute;
+            top: 16px;
+            left: 0;
+            width: 6px;
+            height: 6px;
+            content: "";
+            background: var(--blue);
+            border-radius: 50%;
+        }
+
+        .flash-start {
+            margin-top: 24px;
+            padding: 20px;
+            background: var(--surface-2);
+            border: 1px solid #364252;
+            border-radius: 14px;
+        }
+
+        .ready-state {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 15px;
+            color: #dbe5eb;
+            font-size: 0.85rem;
+        }
+
+        .ready-dot {
+            width: 9px;
+            height: 9px;
+            background: var(--green);
+            border-radius: 50%;
+            box-shadow: 0 0 0 0 rgba(77, 224, 155, 0.5);
+            animation: readyPulse 1.8s infinite;
+        }
+
+        @keyframes readyPulse {
+            70% {
+                box-shadow: 0 0 0 8px rgba(77, 224, 155, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(77, 224, 155, 0);
+            }
+        }
+
+        .flash-start p {
+            margin: 0 0 17px;
+            color: var(--muted);
+            font-size: 0.88rem;
+            line-height: 1.5;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px 18px;
+            color: #03160e;
+            font: inherit;
+            font-size: 0.96rem;
+            font-weight: 750;
+            cursor: pointer;
+            background: var(--green);
+            border: 1px solid var(--green);
+            border-radius: 9px;
+            box-shadow: 0 8px 22px rgba(77, 224, 155, 0.16);
+            transition: transform 0.15s ease, background 0.15s ease;
+        }
+
+        button:hover:not(:disabled) {
+            background: #69e8ad;
+            transform: translateY(-1px);
+        }
+
+        button:disabled {
+            cursor: wait;
+            opacity: 0.62;
+        }
+
+        .flash-process {
+            display: none;
+            margin-top: 18px;
+        }
+
+        .flash-process.visible {
+            display: block;
+        }
+
+        .steps {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .step {
+            display: flex;
+            gap: 14px;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .step:last-child {
+            border-bottom: 0;
+        }
+
+        .step-number {
+            display: grid;
+            flex: 0 0 auto;
+            place-items: center;
+            width: 25px;
+            height: 25px;
+            color: var(--muted);
+            font-size: 0.75rem;
+            font-weight: 700;
+            border: 1px solid var(--border);
+            border-radius: 50%;
+        }
+
+        .step-title {
+            display: block;
+            font-size: 0.92rem;
+            font-weight: 650;
+        }
+
+        .step-description {
+            display: block;
+            margin-top: 4px;
+            color: var(--muted);
+            font-size: 0.82rem;
+            line-height: 1.4;
+        }
+
+        .step.active .step-number {
+            color: #05180f;
+            background: var(--green);
+            border-color: var(--green);
+        }
+
+        .step.done .step-number {
+            color: #05180f;
+            background: var(--green);
+            border-color: var(--green);
+            font-size: 0;
+        }
+
+        .step.done .step-number::after {
+            content: "✓";
+            font-size: 0.85rem;
+        }
+
+        .progress-area {
+            margin-top: 22px;
+        }
+
+        .progress-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 9px;
+            color: var(--muted);
+            font-size: 0.8rem;
+        }
+
+        .progress-track {
+            height: 7px;
+            overflow: hidden;
+            background: #252d37;
+            border-radius: 8px;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background: var(--green);
+            border-radius: inherit;
+            box-shadow: 0 0 12px rgba(77, 224, 155, 0.5);
+            transition: width 0.25s ease;
+        }
+
+        .message {
+            display: none;
+            margin-top: 18px;
+            padding: 14px;
+            color: #d9ffe9;
+            font-size: 0.87rem;
+            line-height: 1.55;
+            background: var(--green-dark);
+            border: 1px solid #2b9d67;
+            border-radius: 8px;
+        }
+
+        .message.visible {
+            display: block;
+        }
+
+        .message strong {
+            color: #8dffc3;
+        }
+
+        .reset-button {
+            width: auto;
+            margin-top: 14px;
+            padding: 0;
+            color: var(--muted);
+            font-size: 0.8rem;
+            font-weight: 500;
+            background: transparent;
+            border: 0;
+            box-shadow: none;
+        }
+
+        .reset-button:hover {
+            color: var(--text);
+            background: transparent;
+            transform: none;
+        }
+
+        footer {
+            margin-top: 52px;
+            color: #697687;
+            font-size: 0.75rem;
+        }
+
+        @media (max-width: 520px) {
+            .logo {
+                width: 130px;
+            }
+
+            .repository-link {
+                font-size: 0.72rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <header>
+            <!-- Repository-URL ersetzen -->
+            <a class="repository-link" href="https://github.com/DEIN-ACCOUNT/DEIN-REPOSITORY" target="_blank"
+                rel="noopener">
+                Repository ↗
+            </a>
+
+            <img class="logo" src="transparent-supervolt-png-1-300x84.webp" alt="SUPER VOLT" />
+        </header>
+
+        <main>
+            <p class="eyebrow">SUPER VOLT Display Small</p>
+            <h1>Firmware Flasher</h1>
+
+            <p class="intro">
+                Installiere die SUPER VOLT Firmware auf deinem Display Small.
+                Das Display verbindet sich anschließend per Bluetooth mit deinem Fahrzeug
+                und zeigt relevante Fahrdaten an.
+            </p>
+
+            <section class="card">
+                <!-- Später durch ein echtes Produktbild ersetzen -->
+                <div class="display-preview">
+                    <div class="display-device">
+                        <div class="display-screen">
+                            <div class="screen-brand">SUPER VOLT</div>
+                            <div class="screen-speed">42</div>
+                            <div class="screen-unit">KM/H</div>
+                            <div class="screen-line"></div>
+                            <div class="screen-status">BATTERY 82%</div>
+                        </div>
+                    </div>
+
+                    <span class="preview-caption">Produktansicht folgt</span>
+                </div>
+
+                <h2>Benötigtes Display</h2>
+                <p class="description">
+                    Benötigt wird ein <strong>Waveshare ESP32-S3-Touch-AMOLED-1.64</strong>.
+                    Das 1,64 Zoll AMOLED-Touchdisplay dient als kompaktes SUPER VOLT Display
+                    und kommuniziert per Bluetooth.
+                </p>
+
+                <div class="facts">
+                    <span class="fact">1,64 Zoll AMOLED</span>
+                    <span class="fact">ESP32-S3</span>
+                    <span class="fact">Touchscreen</span>
+                    <span class="fact">Bluetooth</span>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>Vorbereitung</h2>
+
+                <ul class="requirements">
+                    <li>Display über ein USB-Datenkabel mit dem Computer verbinden.</li>
+                    <li>Prüfen, ob das Gerät als COM-Port bzw. serielles Gerät erkannt wird.</li>
+                    <li>Falls nötig den USB-Seriell-Treiber installieren.</li>
+                    <li>Einen Desktop-PC mit aktuellem Google Chrome oder Microsoft Edge verwenden.</li>
+                </ul>
+            </section>
+
+            <section class="flash-start" id="flashStart">
+                <div class="ready-state">
+                    <span class="ready-dot"></span>
+                    Bereit für die Installation
+                </div>
+
+                <p>
+                    Nach dem Klick wird der serielle Port ausgewählt. Anschließend startet
+                    die Installation automatisch.
+                </p>
+
+                <button id="flashButton" type="button">
+                    Display verbinden &amp; Firmware installieren
+                </button>
+            </section>
+
+            <!-- Erst nach dem Klick sichtbar -->
+            <section class="card flash-process" id="flashProcess">
+                <h2>Installationsfortschritt</h2>
+
+                <ol class="steps">
+                    <li class="step active">
+                        <span class="step-number">1</span>
+                        <div>
+                            <span class="step-title">Display verbinden</span>
+                            <span class="step-description">Verbindung zum ESP32-S3 wird hergestellt.</span>
+                        </div>
+                    </li>
+
+                    <li class="step">
+                        <span class="step-number">2</span>
+                        <div>
+                            <span class="step-title">Partitionen schreiben</span>
+                            <span class="step-description">Speicherbereiche werden vorbereitet.</span>
+                        </div>
+                    </li>
+
+                    <li class="step">
+                        <span class="step-number">3</span>
+                        <div>
+                            <span class="step-title">Firmware übertragen</span>
+                            <span class="step-description">Die SUPER VOLT Firmware wird installiert.</span>
+                        </div>
+                    </li>
+
+                    <li class="step">
+                        <span class="step-number">4</span>
+                        <div>
+                            <span class="step-title">Installation prüfen</span>
+                            <span class="step-description">Das Display startet neu und bestätigt die Version.</span>
+                        </div>
+                    </li>
+                </ol>
+
+                <div class="progress-area">
+                    <div class="progress-meta">
+                        <span id="progressLabel">Verbindung wird hergestellt</span>
+                        <span id="progressPercent">0%</span>
+                    </div>
+
+                    <div class="progress-track">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+                </div>
+
+                <div class="message" id="successMessage">
+                    <strong>Installation erfolgreich.</strong><br />
+                    Das Display antwortet mit Firmware-Version v1.0.0.
+                </div>
+
+                <button class="reset-button" id="resetButton" type="button">
+                    Vorgang zurücksetzen
+                </button>
+            </section>
+        </main>
+
+        <footer>© SUPER VOLT</footer>
+    </div>
+
+    <script>
+        /*
+          Spätere echte Integration:
+          - navigator.serial.requestPort()
+          - ESP32-S3 verbinden
+          - Partitionstabelle schreiben
+          - Firmware flashen
+          - ESP neu starten
+          - Firmware-Version seriell abfragen
+        */
+
+        const flashButton = document.getElementById("flashButton");
+        const resetButton = document.getElementById("resetButton");
+        const flashProcess = document.getElementById("flashProcess");
+        const steps = [...document.querySelectorAll(".step")];
+        const progressBar = document.getElementById("progressBar");
+        const progressLabel = document.getElementById("progressLabel");
+        const progressPercent = document.getElementById("progressPercent");
+        const successMessage = document.getElementById("successMessage");
+
+        const flow = [
+            { progress: 15, label: "Verbindung zum Display wird hergestellt" },
+            { progress: 42, label: "Partitionstabelle wird geschrieben" },
+            { progress: 85, label: "Firmware wird übertragen" },
+            { progress: 100, label: "Installation wird geprüft" }
+        ];
+
+        let running = false;
+
+        const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+        function setProgress(value, label) {
+            progressBar.style.width = `${value}%`;
+            progressPercent.textContent = `${value}%`;
+            progressLabel.textContent = label;
+        }
+
+        function setStep(index) {
+            steps.forEach((step, currentIndex) => {
+                step.classList.remove("active", "done");
+
+                if (currentIndex < index) step.classList.add("done");
+                if (currentIndex === index) step.classList.add("active");
+            });
+        }
+
+        async function startMockFlash() {
+            if (running) return;
+
+            running = true;
+            flashButton.disabled = true;
+            flashButton.textContent = "Installation läuft ...";
+            flashProcess.classList.add("visible");
+            successMessage.classList.remove("visible");
+
+            flashProcess.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+
+            let previousProgress = 0;
+
+            for (let index = 0; index < flow.length; index++) {
+                const item = flow[index];
+                setStep(index);
+
+                for (let value = previousProgress; value <= item.progress; value++) {
+                    setProgress(value, item.label);
+                    await sleep(index === 2 ? 18 : 30);
+                }
+
+                previousProgress = item.progress;
+                await sleep(350);
+            }
+
+            steps.forEach((step) => {
+                step.classList.remove("active");
+                step.classList.add("done");
+            });
+
+            progressLabel.textContent = "Installation abgeschlossen";
+            successMessage.classList.add("visible");
+            flashButton.textContent = "Firmware erneut installieren";
+            flashButton.disabled = false;
+            running = false;
+        }
+
+        function resetFlash() {
+            running = false;
+            flashButton.disabled = false;
+            flashButton.textContent = "Display verbinden & Firmware installieren";
+            flashProcess.classList.remove("visible");
+            successMessage.classList.remove("visible");
+            setProgress(0, "Verbindung wird hergestellt");
+
+            steps.forEach((step, index) => {
+                step.classList.remove("active", "done");
+
+                if (index === 0) {
+                    step.classList.add("active");
+                }
+            });
+        }
+
+        flashButton.addEventListener("click", startMockFlash);
+        resetButton.addEventListener("click", resetFlash);
+    </script>
+</body>
+
+</html>
