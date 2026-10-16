@@ -110,9 +110,10 @@
         }
 
         dialog {
-            width: min(540px, calc(100% - 28px));
+            width: min(550px, calc(100% - 28px));
+            max-height: calc(100dvh - 28px);
             padding: 0;
-            overflow: hidden;
+            overflow: auto;
             border: 1px solid #314765;
             border-radius: 15px;
             color: #edf3ff;
@@ -130,7 +131,7 @@
             align-items: center;
             justify-content: space-between;
             gap: 12px;
-            padding: 15px 18px;
+            padding: 14px 18px;
             border-bottom: 1px solid #273c58;
         }
 
@@ -157,8 +158,8 @@
         }
 
         #status {
-            min-height: 20px;
-            margin-bottom: 14px;
+            min-height: 19px;
+            margin-bottom: 13px;
             color: #bfdbfe;
             font-size: 13px;
         }
@@ -185,32 +186,36 @@
 
         #steps li::before {
             width: 27px;
-            height: 27px;
-            display: grid;
             flex: 0 0 27px;
-            place-items: center;
             content: "○";
             color: #64748b;
             font-size: 18px;
             font-weight: bold;
+            text-align: center;
         }
 
+        /* Aktiver Schritt: bewusst kein Spinner, nur eindeutiger Status. */
         #steps li.current {
             border-color: #735d1d;
             background: #2b2617;
             color: #fde68a;
         }
 
-        /* Aktiver Spinner */
         #steps li.current::before {
-            width: 17px;
-            height: 17px;
-            margin: 0 5px;
-            content: "";
-            border: 3px solid rgba(251, 191, 36, .25);
-            border-top-color: #fbbf24;
-            border-radius: 50%;
-            animation: spin .8s linear infinite;
+            content: "●";
+            color: #fbbf24;
+            font-size: 15px;
+        }
+
+        #steps li.current::after {
+            margin-left: auto;
+            padding: 3px 7px;
+            border-radius: 999px;
+            color: #fde68a;
+            background: #554715;
+            content: "Aktiv";
+            font-size: 11px;
+            font-weight: 650;
         }
 
         #steps li.done {
@@ -245,10 +250,8 @@
             display: block;
         }
 
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
+        #step-install.current::after {
+            display: none;
         }
 
         .success {
@@ -268,6 +271,7 @@
 
         details {
             margin-top: 14px;
+            overflow: hidden;
             border: 1px solid #293d58;
             border-radius: 8px;
             background: #0a1321;
@@ -280,13 +284,48 @@
             font-size: 13px;
         }
 
+        .tabs {
+            display: flex;
+            gap: 3px;
+            padding: 8px 8px 0;
+            border-top: 1px solid #293d58;
+            background: #0d1828;
+        }
+
+        .tab-button {
+            padding: 7px 10px;
+            border-radius: 6px 6px 0 0;
+            color: #9fb0c8;
+            background: transparent;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .tab-button:hover {
+            background: #18263a;
+        }
+
+        .tab-button.active {
+            color: #dbeafe;
+            background: #1d3150;
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
         .technical-info {
             display: grid;
-            grid-template-columns: 100px 1fr;
-            gap: 7px 12px;
-            padding: 0 12px 12px;
+            grid-template-columns: 105px 1fr;
+            gap: 8px 12px;
+            margin: 0;
+            padding: 16px;
             color: #d7e2f3;
-            font-size: 12px;
+            font-size: 13px;
         }
 
         .technical-info dt {
@@ -299,12 +338,11 @@
         }
 
         #log {
-            max-height: 180px;
-            min-height: 90px;
+            height: min(270px, 36dvh);
+            min-height: 180px;
             margin: 0;
             padding: 12px;
             overflow: auto;
-            border-top: 1px solid #293d58;
             color: #cbd5e1;
             white-space: pre-wrap;
             font: 12px/1.45 ui-monospace, SFMono-Regular, Consolas, monospace;
@@ -331,6 +369,10 @@
             .modal-footer {
                 padding-left: 15px;
                 padding-right: 15px;
+            }
+
+            #log {
+                height: 220px;
             }
         }
     </style>
@@ -377,21 +419,33 @@
             <details id="debugDetails">
                 <summary>Technische Details und Konsole</summary>
 
-                <dl class="technical-info">
-                    <dt>Chip</dt>
-                    <dd id="chipValue">–</dd>
+                <div class="tabs">
+                    <button class="tab-button active" data-tab="console">Konsole</button>
+                    <button class="tab-button" data-tab="device">Geräteinformationen</button>
+                </div>
 
-                    <dt>Flash</dt>
-                    <dd id="flashValue">–</dd>
+                <section id="tab-console" class="tab-panel active">
+                    <pre id="log"></pre>
+                </section>
 
-                    <dt>MAC</dt>
-                    <dd id="macValue">–</dd>
+                <section id="tab-device" class="tab-panel">
+                    <dl class="technical-info">
+                        <dt>Chip</dt>
+                        <dd id="chipValue">–</dd>
 
-                    <dt>Firmware</dt>
-                    <dd id="firmwareValue">–</dd>
-                </dl>
+                        <dt>Flash</dt>
+                        <dd id="flashValue">–</dd>
 
-                <pre id="log"></pre>
+                        <dt>MAC-Adresse</dt>
+                        <dd id="macValue">–</dd>
+
+                        <dt>Firmware</dt>
+                        <dd id="firmwareValue">–</dd>
+
+                        <dt>Build</dt>
+                        <dd id="firmwareBuildValue">–</dd>
+                    </dl>
+                </section>
             </details>
         </div>
 
@@ -423,6 +477,10 @@
         const flashValue = document.querySelector("#flashValue");
         const macValue = document.querySelector("#macValue");
         const firmwareValue = document.querySelector("#firmwareValue");
+        const firmwareBuildValue = document.querySelector("#firmwareBuildValue");
+
+        const tabButtons = document.querySelectorAll(".tab-button");
+        const tabPanels = document.querySelectorAll(".tab-panel");
 
         const steps = {
             chip: document.querySelector("#step-chip"),
@@ -438,9 +496,7 @@
         let espToolOutput = "";
         let serialLineBuffer = "";
         let installing = false;
-
         let firmwareInfoResolver = null;
-        let firmwareInfoRejecter = null;
 
         function setStatus(text) {
             statusElement.textContent = text;
@@ -512,6 +568,22 @@
             return result;
         }
 
+        function expectedFirmwareMatches(info, build) {
+            const expected =
+                build.expectedFirmware ||
+                manifest.expectedFirmware || {
+                    name: manifest.name,
+                    version: manifest.version
+                };
+
+            const normalize = (value) => String(value ?? "").trim();
+
+            return (
+                (!expected.name || normalize(info.name) === normalize(expected.name)) &&
+                (!expected.version || normalize(info.version) === normalize(expected.version))
+            );
+        }
+
         function parseFirmwareInfo(line) {
             const match = line.match(/^@FWINFO\s+(.+)$/);
 
@@ -525,10 +597,11 @@
                 firmwareValue.textContent =
                     `${info.name || "?"} ${info.version || ""}`.trim();
 
+                firmwareBuildValue.textContent = info.build || "–";
+
                 if (firmwareInfoResolver) {
                     firmwareInfoResolver(info);
                     firmwareInfoResolver = null;
-                    firmwareInfoRejecter = null;
                 }
             } catch (error) {
                 console.warn("FWINFO konnte nicht geparst werden:", error);
@@ -558,6 +631,7 @@
             );
 
             chipValue.textContent = detectedChip;
+
             flashValue.textContent = flashMatch
                 ? `${flashMatch[1]} Flash`
                 : "Nicht erkannt";
@@ -565,33 +639,6 @@
             macValue.textContent = macMatch
                 ? macMatch[1].toLowerCase()
                 : "Nicht erkannt";
-        }
-
-        function expectedFirmwareMatches(info, build) {
-            /*
-             * Optional im Manifest:
-             *
-             * "expectedFirmware": {
-             *   "name": "supervolt-rs485",
-             *   "version": "2.0.0"
-             * }
-             *
-             * Falls nicht gesetzt, werden manifest.name und manifest.version verwendet.
-             */
-            const expected = build.expectedFirmware || {
-                name: manifest.name,
-                version: manifest.version
-            };
-
-            if (expected.name && info.name !== expected.name) {
-                return false;
-            }
-
-            if (expected.version && info.version !== expected.version) {
-                return false;
-            }
-
-            return true;
         }
 
         async function loadManifest() {
@@ -677,18 +724,12 @@
             return new Promise((resolve, reject) => {
                 const timeout = setTimeout(() => {
                     firmwareInfoResolver = null;
-                    firmwareInfoRejecter = null;
                     reject(new Error("Keine Antwort auf get firmware-info erhalten."));
                 }, timeoutMs);
 
                 firmwareInfoResolver = (info) => {
                     clearTimeout(timeout);
                     resolve(info);
-                };
-
-                firmwareInfoRejecter = () => {
-                    clearTimeout(timeout);
-                    reject(new Error("Firmware-Info konnte nicht gelesen werden."));
                 };
             });
         }
@@ -722,12 +763,12 @@
                     requestToSend: false
                 });
             } catch {
-                // Nicht jeder Adapter unterstützt dies.
+                // Nicht jeder Adapter unterstützt setSignals.
             }
 
             activePort = port;
 
-            // Leser zuerst starten, damit Boot-Ausgaben nicht verlorengehen.
+            // Reader vor dem Warten starten, damit Boot-Ausgaben sichtbar bleiben.
             void startReader(port);
 
             setStatus("Warte auf die gestartete Firmware …");
@@ -760,7 +801,6 @@
             successElement.classList.add("visible");
             setStatus("Installation erfolgreich abgeschlossen.");
 
-            // Nach erfolgreicher Prüfung wird der serielle Port wieder geschlossen.
             await disconnectConsole();
         }
 
@@ -791,6 +831,7 @@
                 flashValue.textContent = "–";
                 macValue.textContent = "–";
                 firmwareValue.textContent = "–";
+                firmwareBuildValue.textContent = "–";
 
                 successElement.classList.remove("visible");
                 debugDetails.open = false;
@@ -929,6 +970,28 @@
                 installDialog.close();
             }
         }
+
+        function activateTab(tabName) {
+            tabButtons.forEach((button) => {
+                button.classList.toggle(
+                    "active",
+                    button.dataset.tab === tabName
+                );
+            });
+
+            tabPanels.forEach((panel) => {
+                panel.classList.toggle(
+                    "active",
+                    panel.id === `tab-${tabName}`
+                );
+            });
+        }
+
+        tabButtons.forEach((button) => {
+            button.addEventListener("click", () => {
+                activateTab(button.dataset.tab);
+            });
+        });
 
         startButton.addEventListener("click", startInstallation);
         closeButton.addEventListener("click", closeDialog);
