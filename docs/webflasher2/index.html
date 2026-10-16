@@ -244,15 +244,21 @@
 
         /* Sichtbarer, aber dezenter Aktivitätsindikator */
         #steps li.current::before {
+            display: block;
             width: 18px;
             height: 18px;
-            margin: 0 5px;
+            min-width: 18px;
+            min-height: 18px;
+            flex: 0 0 18px;
+            margin: 0 9px 0 5px;
+            box-sizing: border-box;
+
             content: "";
             border: 2px solid rgba(251, 191, 36, .22);
             border-top-color: #fbbf24;
-            border-right-color: #fbbf24;
             border-radius: 50%;
-            animation: spin .8s linear infinite;
+
+            animation: spin .75s linear infinite;
         }
 
         #steps li.done {
@@ -297,6 +303,10 @@
         }
 
         @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
             to {
                 transform: rotate(360deg);
             }
