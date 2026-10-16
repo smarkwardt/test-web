@@ -19,5 +19,9 @@
                 }
             ]
         }
-    ]
+    ],
+    "expectedFirmware": {
+        "name": "supervolt-rs485",
+        "version": "2.0.0"
+    }
 }

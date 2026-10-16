@@ -33,7 +33,7 @@
         button {
             border: 0;
             border-radius: 9px;
-            padding: 12px 18px;
+            padding: 11px 18px;
             font: inherit;
             font-weight: 650;
             color: white;
@@ -59,8 +59,8 @@
         }
 
         .landing {
-            width: min(620px, 100%);
-            padding: 42px;
+            width: min(580px, 100%);
+            padding: 38px;
             text-align: center;
             border: 1px solid #28405f;
             border-radius: 18px;
@@ -69,14 +69,14 @@
         }
 
         .logo {
-            width: 60px;
-            height: 60px;
+            width: 56px;
+            height: 56px;
             display: grid;
             place-items: center;
-            margin: 0 auto 20px;
+            margin: 0 auto 18px;
             border-radius: 16px;
             background: #1d4ed8;
-            font-size: 28px;
+            font-size: 26px;
         }
 
         h1,
@@ -86,13 +86,13 @@
         }
 
         h1 {
-            font-size: clamp(26px, 5vw, 38px);
+            font-size: clamp(25px, 5vw, 36px);
             letter-spacing: -.03em;
         }
 
         .subtitle {
-            max-width: 440px;
-            margin: 14px auto 28px;
+            max-width: 420px;
+            margin: 13px auto 26px;
             color: #a9bad2;
             line-height: 1.55;
         }
@@ -103,19 +103,18 @@
         }
 
         #landingStatus {
-            min-height: 20px;
-            margin-top: 16px;
+            min-height: 18px;
+            margin-top: 14px;
             color: #93c5fd;
             font-size: 13px;
         }
 
         dialog {
-            width: min(620px, calc(100% - 28px));
-            max-height: min(760px, calc(100dvh - 28px));
+            width: min(540px, calc(100% - 28px));
             padding: 0;
-            overflow: auto;
+            overflow: hidden;
             border: 1px solid #314765;
-            border-radius: 16px;
+            border-radius: 15px;
             color: #edf3ff;
             background: #101c2e;
             box-shadow: 0 24px 80px rgba(0, 0, 0, .6);
@@ -130,23 +129,23 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 16px;
-            padding: 20px 22px;
+            gap: 12px;
+            padding: 15px 18px;
             border-bottom: 1px solid #273c58;
         }
 
         .modal-header h2 {
-            font-size: 18px;
+            font-size: 16px;
         }
 
         .close-button {
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
             padding: 0;
-            border-radius: 8px;
+            border-radius: 7px;
             background: transparent;
             color: #a9bad2;
-            font-size: 22px;
+            font-size: 21px;
         }
 
         .close-button:hover:not(:disabled) {
@@ -154,51 +153,20 @@
         }
 
         .modal-content {
-            padding: 22px;
+            padding: 18px;
         }
 
         #status {
-            min-height: 22px;
-            margin-bottom: 18px;
+            min-height: 20px;
+            margin-bottom: 14px;
             color: #bfdbfe;
-            font-size: 14px;
-        }
-
-        progress {
-            width: 100%;
-            height: 12px;
-            overflow: hidden;
-            border: 0;
-            border-radius: 999px;
-        }
-
-        progress::-webkit-progress-bar {
-            border-radius: 999px;
-            background: #263850;
-        }
-
-        progress::-webkit-progress-value {
-            border-radius: 999px;
-            background: #22c55e;
-        }
-
-        progress::-moz-progress-bar {
-            border-radius: 999px;
-            background: #22c55e;
-        }
-
-        .progress-row {
-            display: flex;
-            justify-content: space-between;
-            margin: 7px 0 22px;
-            color: #9fb0c8;
-            font-size: 12px;
+            font-size: 13px;
         }
 
         #steps {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 7px;
             padding: 0;
             margin: 0;
             list-style: none;
@@ -207,16 +175,20 @@
         #steps li {
             display: flex;
             align-items: center;
-            min-height: 42px;
-            padding: 8px 11px;
+            min-height: 40px;
+            padding: 8px 10px;
             border: 1px solid transparent;
-            border-radius: 9px;
+            border-radius: 8px;
             color: #91a2bb;
             font-size: 14px;
         }
 
         #steps li::before {
-            width: 29px;
+            width: 27px;
+            height: 27px;
+            display: grid;
+            flex: 0 0 27px;
+            place-items: center;
             content: "○";
             color: #64748b;
             font-size: 18px;
@@ -229,9 +201,16 @@
             color: #fde68a;
         }
 
+        /* Aktiver Spinner */
         #steps li.current::before {
-            content: "◉";
-            color: #fbbf24;
+            width: 17px;
+            height: 17px;
+            margin: 0 5px;
+            content: "";
+            border: 3px solid rgba(251, 191, 36, .25);
+            border-top-color: #fbbf24;
+            border-radius: 50%;
+            animation: spin .8s linear infinite;
         }
 
         #steps li.done {
@@ -254,54 +233,74 @@
             color: #ef4444;
         }
 
-        .result {
+        .step-progress {
             display: none;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px 26px;
-            margin-top: 20px;
-            padding: 14px;
+            margin-left: auto;
+            color: #fde68a;
+            font-size: 12px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        #step-install.current .step-progress {
+            display: block;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .success {
+            display: none;
+            margin-top: 14px;
+            padding: 11px 13px;
             border: 1px solid #285e4c;
-            border-radius: 10px;
+            border-radius: 9px;
+            color: #bbf7d0;
             background: #102b29;
             font-size: 13px;
         }
 
-        .result.visible {
-            display: grid;
-        }
-
-        .result dt {
-            color: #9ac9bb;
-        }
-
-        .result dd {
-            margin: 2px 0 0;
-            overflow-wrap: anywhere;
-            color: #ecfdf5;
-            font-weight: 600;
-        }
-
-        .result div {
-            min-width: 0;
+        .success.visible {
+            display: block;
         }
 
         details {
-            margin-top: 20px;
+            margin-top: 14px;
             border: 1px solid #293d58;
-            border-radius: 9px;
+            border-radius: 8px;
             background: #0a1321;
         }
 
         summary {
-            padding: 11px 13px;
+            padding: 10px 12px;
             cursor: pointer;
             color: #adbed4;
             font-size: 13px;
         }
 
+        .technical-info {
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            gap: 7px 12px;
+            padding: 0 12px 12px;
+            color: #d7e2f3;
+            font-size: 12px;
+        }
+
+        .technical-info dt {
+            color: #7f96b5;
+        }
+
+        .technical-info dd {
+            margin: 0;
+            overflow-wrap: anywhere;
+        }
+
         #log {
-            max-height: 210px;
-            min-height: 120px;
+            max-height: 180px;
+            min-height: 90px;
             margin: 0;
             padding: 12px;
             overflow: auto;
@@ -314,8 +313,7 @@
         .modal-footer {
             display: flex;
             justify-content: flex-end;
-            gap: 10px;
-            padding: 16px 22px;
+            padding: 13px 18px;
             border-top: 1px solid #273c58;
         }
 
@@ -331,12 +329,8 @@
             .modal-header,
             .modal-content,
             .modal-footer {
-                padding-left: 16px;
-                padding-right: 16px;
-            }
-
-            .result {
-                grid-template-columns: 1fr;
+                padding-left: 15px;
+                padding-right: 15px;
             }
         }
     </style>
@@ -349,7 +343,7 @@
         <h1>Firmware installieren</h1>
 
         <p class="subtitle">
-            Verbinde dein Gerät per USB und installiere die aktuelle Firmware direkt im Browser.
+            Gerät per USB verbinden und die aktuelle Firmware direkt im Browser installieren.
         </p>
 
         <button id="startButton" disabled>Firmware flashen</button>
@@ -366,44 +360,37 @@
         <div class="modal-content">
             <div id="status">Bereit.</div>
 
-            <progress id="progress" value="0" max="100"></progress>
-
-            <div class="progress-row">
-                <span id="progressLabel">Warte auf Start</span>
-                <span id="progressText">0 %</span>
-            </div>
-
             <ul id="steps">
                 <li id="step-chip">Gerät prüfen</li>
                 <li id="step-erase">Speicher löschen</li>
-                <li id="step-install">Firmware installieren</li>
+                <li id="step-install">
+                    Firmware installieren
+                    <span id="installPercent" class="step-progress">0 %</span>
+                </li>
                 <li id="step-info">Installation prüfen</li>
             </ul>
 
-            <dl id="result" class="result">
-                <div>
-                    <dt>Chip</dt>
-                    <dd id="chipValue">–</dd>
-                </div>
-
-                <div>
-                    <dt>Flash</dt>
-                    <dd id="flashValue">–</dd>
-                </div>
-
-                <div>
-                    <dt>Firmware</dt>
-                    <dd id="fwName">–</dd>
-                </div>
-
-                <div>
-                    <dt>Version</dt>
-                    <dd id="fwVersion">–</dd>
-                </div>
-            </dl>
+            <div id="success" class="success">
+                ✓ Firmware wurde erfolgreich installiert und geprüft.
+            </div>
 
             <details id="debugDetails">
-                <summary>Technische Details / serielle Konsole</summary>
+                <summary>Technische Details und Konsole</summary>
+
+                <dl class="technical-info">
+                    <dt>Chip</dt>
+                    <dd id="chipValue">–</dd>
+
+                    <dt>Flash</dt>
+                    <dd id="flashValue">–</dd>
+
+                    <dt>MAC</dt>
+                    <dd id="macValue">–</dd>
+
+                    <dt>Firmware</dt>
+                    <dd id="firmwareValue">–</dd>
+                </dl>
+
                 <pre id="log"></pre>
             </details>
         </div>
@@ -427,36 +414,21 @@
         const closeFooterButton = document.querySelector("#closeFooterButton");
 
         const statusElement = document.querySelector("#status");
-        const progress = document.querySelector("#progress");
-        const progressLabel = document.querySelector("#progressLabel");
-        const progressText = document.querySelector("#progressText");
-
-        const logElement = document.querySelector("#log");
-        const resultElement = document.querySelector("#result");
+        const installPercent = document.querySelector("#installPercent");
+        const successElement = document.querySelector("#success");
         const debugDetails = document.querySelector("#debugDetails");
+        const logElement = document.querySelector("#log");
 
         const chipValue = document.querySelector("#chipValue");
         const flashValue = document.querySelector("#flashValue");
-        const fwName = document.querySelector("#fwName");
-        const fwVersion = document.querySelector("#fwVersion");
+        const macValue = document.querySelector("#macValue");
+        const firmwareValue = document.querySelector("#firmwareValue");
 
         const steps = {
             chip: document.querySelector("#step-chip"),
             erase: document.querySelector("#step-erase"),
             install: document.querySelector("#step-install"),
             info: document.querySelector("#step-info")
-        };
-
-        const chipProfiles = {
-            "ESP32": "520 KB SRAM",
-            "ESP32-S2": "320 KB SRAM",
-            "ESP32-S3": "512 KB SRAM",
-            "ESP32-C2": "272 KB SRAM",
-            "ESP32-C3": "400 KB SRAM",
-            "ESP32-C5": "384 KB SRAM",
-            "ESP32-C6": "512 KB SRAM",
-            "ESP32-H2": "320 KB SRAM",
-            "ESP8266": "ca. 80 KB nutzbares RAM"
         };
 
         let manifest;
@@ -467,19 +439,11 @@
         let serialLineBuffer = "";
         let installing = false;
 
+        let firmwareInfoResolver = null;
+        let firmwareInfoRejecter = null;
+
         function setStatus(text) {
             statusElement.textContent = text;
-        }
-
-        function setProgress(value, label) {
-            const percent = Math.max(0, Math.min(100, Math.round(value)));
-
-            progress.value = percent;
-            progressText.textContent = `${percent} %`;
-
-            if (label) {
-                progressLabel.textContent = label;
-            }
         }
 
         function log(text) {
@@ -503,6 +467,8 @@
             Object.values(steps).forEach((step) => {
                 step.className = "";
             });
+
+            installPercent.textContent = "0 %";
         }
 
         function setCurrentStep(name) {
@@ -556,11 +522,14 @@
             try {
                 const info = JSON.parse(match[1]);
 
-                fwName.textContent = info.name || "–";
-                fwVersion.textContent = info.version || "–";
-                resultElement.classList.add("visible");
+                firmwareValue.textContent =
+                    `${info.name || "?"} ${info.version || ""}`.trim();
 
-                log(`[FWINFO erkannt] ${info.name || "?"} ${info.version || "?"}`);
+                if (firmwareInfoResolver) {
+                    firmwareInfoResolver(info);
+                    firmwareInfoResolver = null;
+                    firmwareInfoRejecter = null;
+                }
             } catch (error) {
                 console.warn("FWINFO konnte nicht geparst werden:", error);
             }
@@ -584,12 +553,45 @@
                 /(?:Embedded Flash|Flash)\s+(\d+\s*(?:KB|MB))/i
             );
 
+            const macMatch = espToolOutput.match(
+                /MAC:\s*([0-9a-f:]{17})/i
+            );
+
             chipValue.textContent = detectedChip;
             flashValue.textContent = flashMatch
                 ? `${flashMatch[1]} Flash`
-                : "Flash erkannt";
+                : "Nicht erkannt";
 
-            resultElement.classList.add("visible");
+            macValue.textContent = macMatch
+                ? macMatch[1].toLowerCase()
+                : "Nicht erkannt";
+        }
+
+        function expectedFirmwareMatches(info, build) {
+            /*
+             * Optional im Manifest:
+             *
+             * "expectedFirmware": {
+             *   "name": "supervolt-rs485",
+             *   "version": "2.0.0"
+             * }
+             *
+             * Falls nicht gesetzt, werden manifest.name und manifest.version verwendet.
+             */
+            const expected = build.expectedFirmware || {
+                name: manifest.name,
+                version: manifest.version
+            };
+
+            if (expected.name && info.name !== expected.name) {
+                return false;
+            }
+
+            if (expected.version && info.version !== expected.version) {
+                return false;
+            }
+
+            return true;
         }
 
         async function loadManifest() {
@@ -600,7 +602,9 @@
             });
 
             if (!response.ok) {
-                throw new Error(`manifest.json konnte nicht geladen werden (${response.status})`);
+                throw new Error(
+                    `manifest.json konnte nicht geladen werden (${response.status})`
+                );
             }
 
             manifest = await response.json();
@@ -669,48 +673,24 @@
             }
         }
 
-        async function requestFirmwareInfo(port) {
-            setCurrentStep("info");
-            setStatus("Firmware startet …");
-            setProgress(90, "Firmware startet");
+        function waitForFirmwareInfo(timeoutMs = 6000) {
+            return new Promise((resolve, reject) => {
+                const timeout = setTimeout(() => {
+                    firmwareInfoResolver = null;
+                    firmwareInfoRejecter = null;
+                    reject(new Error("Keine Antwort auf get firmware-info erhalten."));
+                }, timeoutMs);
 
-            /*
-             * Port erneut öffnen. Das kann bei USB-Serial-Adaptern einen Reset
-             * auslösen. Deshalb zuerst Reader starten und danach warten.
-             */
-            await port.open({ baudRate: 115200 });
+                firmwareInfoResolver = (info) => {
+                    clearTimeout(timeout);
+                    resolve(info);
+                };
 
-            try {
-                await port.setSignals({
-                    dataTerminalReady: false,
-                    requestToSend: false
-                });
-            } catch {
-                // Nicht jeder Browser/Adapter unterstützt setSignals vollständig.
-            }
-
-            activePort = port;
-
-            // Reader VOR dem Warten starten, damit Boot-Ausgaben sichtbar sind.
-            void startReader(port);
-
-            setStatus("Warte auf die gestartete Firmware …");
-            await new Promise((resolve) => setTimeout(resolve, 3000));
-
-            const writer = port.writable.getWriter();
-
-            try {
-                const encoder = new TextEncoder();
-
-                log("> get firmware-info");
-                await writer.write(encoder.encode("get firmware-info\r\n"));
-            } finally {
-                writer.releaseLock();
-            }
-
-            setStatus("Firmware-Info wird gelesen …");
-            setProgress(100, "Installation abgeschlossen");
-            setStepDone("info");
+                firmwareInfoRejecter = () => {
+                    clearTimeout(timeout);
+                    reject(new Error("Firmware-Info konnte nicht gelesen werden."));
+                };
+            });
         }
 
         async function disconnectConsole() {
@@ -728,6 +708,60 @@
                     await port.close();
                 } catch { }
             }
+        }
+
+        async function requestFirmwareInfo(port, build) {
+            setCurrentStep("info");
+            setStatus("Firmware startet …");
+
+            await port.open({ baudRate: 115200 });
+
+            try {
+                await port.setSignals({
+                    dataTerminalReady: false,
+                    requestToSend: false
+                });
+            } catch {
+                // Nicht jeder Adapter unterstützt dies.
+            }
+
+            activePort = port;
+
+            // Leser zuerst starten, damit Boot-Ausgaben nicht verlorengehen.
+            void startReader(port);
+
+            setStatus("Warte auf die gestartete Firmware …");
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+
+            const firmwareInfoPromise = waitForFirmwareInfo();
+
+            const writer = port.writable.getWriter();
+
+            try {
+                const encoder = new TextEncoder();
+
+                log("> get firmware-info");
+                await writer.write(encoder.encode("get firmware-info\r\n"));
+            } finally {
+                writer.releaseLock();
+            }
+
+            setStatus("Installation wird geprüft …");
+
+            const info = await firmwareInfoPromise;
+
+            if (!expectedFirmwareMatches(info, build)) {
+                throw new Error(
+                    `Falsche Firmware erkannt: ${info.name || "?"} ${info.version || ""}`
+                );
+            }
+
+            setStepDone("info");
+            successElement.classList.add("visible");
+            setStatus("Installation erfolgreich abgeschlossen.");
+
+            // Nach erfolgreicher Prüfung wird der serielle Port wieder geschlossen.
+            await disconnectConsole();
         }
 
         async function startInstallation() {
@@ -750,24 +784,24 @@
                 installDialog.showModal();
 
                 logElement.textContent = "";
-                resultElement.classList.remove("visible");
-                chipValue.textContent = "–";
-                flashValue.textContent = "–";
-                fwName.textContent = "–";
-                fwVersion.textContent = "–";
-
                 espToolOutput = "";
                 serialLineBuffer = "";
+
+                chipValue.textContent = "–";
+                flashValue.textContent = "–";
+                macValue.textContent = "–";
+                firmwareValue.textContent = "–";
+
+                successElement.classList.remove("visible");
+                debugDetails.open = false;
+
                 resetSteps();
-                setProgress(0, "Firmware wird vorbereitet");
-                setStatus("Firmware-Dateien werden geladen …");
+                setStatus("Firmware wird vorbereitet …");
 
                 const build = manifest.builds[0];
                 const files = await loadFirmwareParts(build);
 
                 setStatus("Bitte wähle den Serial-Port deines Geräts aus …");
-                setProgress(5, "Warte auf Geräteauswahl");
-
                 port = await navigator.serial.requestPort();
 
                 const terminal = {
@@ -798,7 +832,6 @@
                 currentStep = "chip";
                 setCurrentStep("chip");
                 setStatus("Gerät wird erkannt und geprüft …");
-                setProgress(10, "Gerät wird geprüft");
 
                 const detectedChip = await loader.main();
                 const expectedChip = build.expectedChip || build.chipFamily;
@@ -816,7 +849,6 @@
                 currentStep = "erase";
                 setCurrentStep("erase");
                 setStatus("Flash-Speicher wird gelöscht …");
-                setProgress(20, "Speicher wird gelöscht");
 
                 await loader.eraseFlash();
 
@@ -849,18 +881,15 @@
                         const writtenBytes =
                             fileOffsets[fileIndex] + Math.min(written, total);
 
-                        const writeProgress = totalBytes > 0
-                            ? writtenBytes / totalBytes
+                        const percent = totalBytes > 0
+                            ? Math.round((writtenBytes / totalBytes) * 100)
                             : 0;
 
-                        // 20 % bis 90 %: Schreibfortschritt
-                        setProgress(
-                            20 + writeProgress * 70,
-                            "Firmware wird installiert"
-                        );
+                        installPercent.textContent = `${percent} %`;
                     }
                 });
 
+                installPercent.textContent = "100 %";
                 setStepDone("install");
 
                 setStatus("ESP wird neu gestartet …");
@@ -868,9 +897,7 @@
                 await transport.disconnect();
                 transport = null;
 
-                await requestFirmwareInfo(port);
-
-                setStatus("Installation erfolgreich abgeschlossen.");
+                await requestFirmwareInfo(port, build);
             } catch (error) {
                 console.error(error);
                 log(`\nFEHLER: ${error.message || error}`);
@@ -881,6 +908,8 @@
 
                 setStatus(`Fehler: ${error.message || error}`);
                 debugDetails.open = true;
+
+                await disconnectConsole();
             } finally {
                 if (transport) {
                     try {
@@ -896,22 +925,14 @@
         }
 
         function closeDialog() {
-            if (installing) {
-                return;
+            if (!installing) {
+                installDialog.close();
             }
-
-            installDialog.close();
         }
 
         startButton.addEventListener("click", startInstallation);
         closeButton.addEventListener("click", closeDialog);
         closeFooterButton.addEventListener("click", closeDialog);
-
-        installDialog.addEventListener("close", () => {
-            if (!installing) {
-                disconnectConsole();
-            }
-        });
 
         loadManifest().catch((error) => {
             landingStatus.textContent = `Fehler: ${error.message}`;
