@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="de">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ESP Firmware Installer</title>
+
+    <style>
+        body {
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 0 16px;
+            font-family: system-ui, sans-serif;
+            background: #111827;
+            color: #f9fafb;
+        }
+
+        button,
+        select {
+            font: inherit;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 0;
+        }
+
+        button {
+            background: #2563eb;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .danger {
+            background: #dc2626;
+        }
+
+        .secondary {
+            background: #374151;
+        }
+
+        .row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 16px 0;
+        }
+
+        progress {
+            width: 100%;
+            height: 22px;
+        }
+
+        #status {
+            font-weight: 600;
+            margin: 16px 0 8px;
+        }
+
+        #log {
+            background: #030712;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            padding: 12px;
+            min-height: 180px;
+            max-height: 300px;
+            overflow: auto;
+            white-space: pre-wrap;
+            font-family: ui-monospace, monospace;
+            font-size: 13px;
+        }
+
+        dialog {
+            color: #f9fafb;
+            background: #1f2937;
+            border: 1px solid #4b5563;
+            border-radius: 12px;
+            max-width: 430px;
+        }
+
+        dialog::backdrop {
+            background: rgba(0, 0, 0, 0.7);
+        }
+    </style>
+</head>
+
+<body>
+    <h1>ESP Firmware Installer</h1>
+
+    <div class="row">
+        <label>
+            Firmware:
+            <select id="buildSelect"></select>
+        </label>
+    </div>
+
+    <div class="row">
+        <label>
+            <input id="fullErase" type="checkbox">
+            Flash vorher vollständig löschen
+        </label>
+    </div>
+
+    <div class="row">
+        <button id="flashButton">ESP verbinden und flashen</button>
+    </div>
+
+    <div id="status">Manifest wird geladen …</div>
+
+    <progress id="progress" value="0" max="100"></progress>
+    <div id="progressText">0 %</div>
+
+    <h3>Log</h3>
+    <pre id="log"></pre>
+
+    <!-- Eigener Lösch-Dialog -->
+    <dialog id="eraseDialog">
+        <h2>Flash vollständig löschen?</h2>
+        <p>
+            Dabei werden alle Daten auf dem ESP gelöscht, inklusive Konfiguration,
+            gespeicherter WLAN-Zugangsdaten oder anderer Partitionen.
+        </p>
+
+        <div class="row">
+            <button id="cancelErase" class="secondary">Abbrechen</button>
+            <button id="confirmErase" class="danger">Jetzt löschen und flashen</button>
+        </div>
+    </dialog>
+
+    <script type="module">
+        import {
+            ESPLoader,
+            Transport
+        } from "https://esm.sh/esptool-js@0.5.4?bundle";
+
+        const flashButton = document.querySelector("#flashButton");
+        const buildSelect = document.querySelector("#buildSelect");
+        const fullEraseCheckbox = document.querySelector("#fullErase");
+        const progress = document.querySelector("#progress");
+        const progressText = document.querySelector("#progressText");
+        const statusElement = document.querySelector("#status");
+        const logElement = document.querySelector("#log");
+
+        const eraseDialog = document.querySelector("#eraseDialog");
+        const confirmErase = document.querySelector("#confirmErase");
+        const cancelErase = document.querySelector("#cancelErase");
+
+        let manifest;
+
+        function setStatus(text) {
+            statusElement.textContent = text;
+            log(text);
+        }
+
+        function log(text) {
+            logElement.textContent += `${text}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function setProgress(percent) {
+            const value = Math.max(0, Math.min(100, Math.round(percent)));
+            progress.value = value;
+            progressText.textContent = `${value} %`;
+        }
+
+        // esptool-js erwartet für "data" einen Binary-String.
+        function arrayBufferToBinaryString(buffer) {
+            const bytes = new Uint8Array(buffer);
+            const chunkSize = 0x8000;
+            let result = "";
+
+            for (let i = 0; i < bytes.length; i += chunkSize) {
+                result += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+            }
+
+            return result;
+        }
+
+        async function loadManifest() {
+            const response = await fetch("./manifest.json", { cache: "no-store" });
+
+            if (!response.ok) {
+                throw new Error(`manifest.json konnte nicht geladen werden (${response.status})`);
+            }
+
+            manifest = await response.json();
+
+            if (!manifest.builds?.length) {
+                throw new Error("Keine Builds in manifest.json gefunden.");
+            }
+
+            manifest.builds.forEach((build, index) => {
+                const option = document.createElement("option");
+                option.value = index;
+                option.textContent =
+                    `${manifest.name ?? "Firmware"} – ${build.chipFamily ?? "ESP"}`;
+
+                buildSelect.appendChild(option);
+            });
+
+            setStatus(`${manifest.name ?? "Firmware"} ${manifest.version ?? ""} bereit.`);
+        }
+
+        function getSelectedBuild() {
+            return manifest.builds[Number(buildSelect.value)];
+        }
+
+        function waitForEraseConfirmation() {
+            return new Promise((resolve) => {
+                eraseDialog.showModal();
+
+                confirmErase.onclick = () => {
+                    eraseDialog.close();
+                    resolve(true);
+                };
+
+                cancelErase.onclick = () => {
+                    eraseDialog.close();
+                    resolve(false);
+                };
+            });
+        }
+
+        async function downloadFirmwareParts(build) {
+            setStatus("Firmware-Dateien werden geladen …");
+
+            const fileArray = [];
+
+            for (const part of build.parts) {
+                log(`Lade ${part.path}`);
+
+                const response = await fetch(`./${part.path}`);
+
+                if (!response.ok) {
+                    throw new Error(
+                        `Firmware-Datei konnte nicht geladen werden: ${part.path}`
+                    );
+                }
+
+                const data = await response.arrayBuffer();
+
+                fileArray.push({
+                    address: part.offset,
+                    data: arrayBufferToBinaryString(data)
+                });
+            }
+
+            return fileArray;
+        }
+
+        function chipMatchesBuild(detectedChip, build) {
+            const expected = (build.expectedChip || build.chipFamily || "")
+                .toUpperCase();
+
+            const detected = String(detectedChip || "").toUpperCase();
+
+            if (!expected) {
+                return true;
+            }
+
+            /*
+             * Standard-Manifest nutzt meist nur ESP32 / ESP8266.
+             *
+             * Für präzisere Prüfung kann im Build zusätzlich stehen:
+             * "expectedChip": "ESP32-S3"
+             */
+            return detected.includes(expected);
+        }
+
+        async function flash() {
+            let transport;
+
+            try {
+                flashButton.disabled = true;
+                buildSelect.disabled = true;
+                logElement.textContent = "";
+                setProgress(0);
+
+                const build = getSelectedBuild();
+                const fileArray = await downloadFirmwareParts(build);
+
+                setStatus("Bitte ESP-Port im Browser auswählen …");
+
+                /*
+                 * Dies ist der einzige unvermeidbare Browser-Dialog.
+                 * requestPort() muss direkt oder indirekt von einem Klick kommen.
+                 */
+                const port = await navigator.serial.requestPort();
+
+                transport = new Transport(port, true);
+
+                const terminal = {
+                    clean() {
+                        // Nicht automatisch das eigene Log löschen.
+                    },
+
+                    write(data) {
+                        log(String(data));
+                    },
+
+                    writeLine(data) {
+                        log(String(data));
+                    }
+                };
+
+                const loader = new ESPLoader({
+                    transport,
+                    baudrate: 115200,
+                    romBaudrate: 115200,
+                    terminal
+                });
+
+                setStatus("Verbinde mit ESP und erkenne Chip …");
+
+                /*
+                 * main() synchronisiert mit dem ESP, erkennt den Chip
+                 * und lädt den ROM-Bootloader.
+                 */
+                const detectedChip = await loader.main();
+
+                log(`Erkannter Chip: ${detectedChip}`);
+
+                if (!chipMatchesBuild(detectedChip, build)) {
+                    throw new Error(
+                        `Falscher Chip. Erwartet: ${build.expectedChip || build.chipFamily}, erkannt: ${detectedChip}`
+                    );
+                }
+
+                if (fullEraseCheckbox.checked) {
+                    const confirmed = await waitForEraseConfirmation();
+
+                    if (!confirmed) {
+                        setStatus("Vorgang abgebrochen.");
+                        return;
+                    }
+
+                    setStatus("Flash wird vollständig gelöscht …");
+                    await loader.eraseFlash();
+                }
+
+                setStatus("Firmware wird geschrieben …");
+
+                await loader.writeFlash({
+                    fileArray,
+                    flashSize: "keep",
+                    eraseAll: false,
+                    compress: true,
+
+                    reportProgress(fileIndex, written, total) {
+                        const percent = (written / total) * 100;
+                        setProgress(percent);
+                    }
+                });
+
+                setProgress(100);
+                setStatus("Firmware erfolgreich geflasht.");
+            } catch (error) {
+                console.error(error);
+                setStatus(`Fehler: ${error.message || error}`);
+            } finally {
+                if (transport) {
+                    try {
+                        await transport.disconnect();
+                    } catch {
+                        // Port war eventuell bereits geschlossen.
+                    }
+                }
+
+                flashButton.disabled = false;
+                buildSelect.disabled = false;
+            }
+        }
+
+        flashButton.addEventListener("click", flash);
+
+        loadManifest().catch((error) => {
+            setStatus(`Fehler beim Laden des Manifests: ${error.message}`);
+            flashButton.disabled = true;
+        });
+    </script>
+</body>
+
+</html>
