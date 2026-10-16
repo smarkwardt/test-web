@@ -1,24 +1,924 @@
-{
-"name": "supervolt-rs485",
-"version": "2.0.0",
-"builds": [
-{
-"chipFamily": "ESP32-C3",
-"expectedChip": "ESP32-C3",
-"parts": [
-{
-"path": "firmware/bootloader.bin",
-"offset": 0
-},
-{
-"path": "firmware/partitions.bin",
-"offset": 32768
-},
-{
-"path": "firmware/firmware.bin",
-"offset": 65536
-}
-]
-}
-]
-}
+<!doctype html>
+<html lang="de">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ESP Firmware Installer</title>
+
+    <style>
+        :root {
+            color-scheme: dark;
+            font-family: Inter, system-ui, sans-serif;
+            background: #0b1220;
+            color: #eef2ff;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100dvh;
+            padding: 18px;
+            background: #0b1220;
+        }
+
+        main {
+            width: min(1450px, 100%);
+            min-height: calc(100dvh - 36px);
+            margin: auto;
+            display: grid;
+            grid-template-rows: auto auto minmax(230px, 1fr);
+            gap: 14px;
+        }
+
+        .card {
+            border: 1px solid #26334a;
+            border-radius: 12px;
+            background: #121c2d;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, .2);
+        }
+
+        h1,
+        h2,
+        h3,
+        p {
+            margin: 0;
+        }
+
+        h1 {
+            font-size: 20px;
+        }
+
+        h2 {
+            font-size: 14px;
+            color: #cbd5e1;
+            margin-bottom: 12px;
+        }
+
+        button,
+        select,
+        input {
+            font: inherit;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: 0;
+            border-radius: 8px;
+            color: white;
+            background: #2563eb;
+            cursor: pointer;
+            font-weight: 650;
+        }
+
+        button:hover:not(:disabled) {
+            background: #3b82f6;
+        }
+
+        button.secondary {
+            background: #334155;
+        }
+
+        button.secondary:hover:not(:disabled) {
+            background: #475569;
+        }
+
+        button:disabled {
+            cursor: not-allowed;
+            opacity: .5;
+        }
+
+        select {
+            min-width: 210px;
+            padding: 9px;
+            border: 1px solid #42526b;
+            border-radius: 7px;
+            color: #fff;
+            background: #172235;
+        }
+
+        /* Kopfbereich */
+        .toolbar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding: 14px 16px;
+        }
+
+        .title {
+            margin-right: auto;
+        }
+
+        .erase-option {
+            color: #cbd5e1;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        #status {
+            width: 100%;
+            color: #93c5fd;
+            font-size: 14px;
+        }
+
+        /* Übersicht */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1.25fr 1fr 1fr;
+            gap: 14px;
+        }
+
+        .dashboard .card {
+            padding: 15px;
+        }
+
+        /* Checkliste */
+        #steps {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5px 14px;
+        }
+
+        #steps li {
+            color: #94a3b8;
+            font-size: 13px;
+        }
+
+        #steps li::before {
+            display: inline-block;
+            width: 22px;
+            content: "○";
+            color: #64748b;
+            font-weight: bold;
+        }
+
+        #steps li.current {
+            color: #fbbf24;
+        }
+
+        #steps li.current::before {
+            content: "◉";
+            color: #fbbf24;
+        }
+
+        #steps li.done {
+            color: #86efac;
+        }
+
+        #steps li.done::before {
+            content: "✓";
+            color: #22c55e;
+        }
+
+        #steps li.error {
+            color: #fca5a5;
+        }
+
+        #steps li.error::before {
+            content: "✕";
+            color: #ef4444;
+        }
+
+        /* Hardware/Firmware */
+        dl {
+            display: grid;
+            grid-template-columns: 88px 1fr;
+            gap: 7px 12px;
+            margin: 0;
+            font-size: 13px;
+        }
+
+        dt {
+            color: #94a3b8;
+        }
+
+        dd {
+            margin: 0;
+            overflow-wrap: anywhere;
+        }
+
+        .empty {
+            color: #64748b;
+        }
+
+        /* Fortschritt */
+        progress {
+            width: 100%;
+            height: 18px;
+            overflow: hidden;
+            border: 0;
+            border-radius: 99px;
+        }
+
+        progress::-webkit-progress-bar {
+            background: #26334a;
+            border-radius: 99px;
+        }
+
+        progress::-webkit-progress-value {
+            border-radius: 99px;
+            background: #22c55e;
+        }
+
+        #progressText {
+            margin-top: 7px;
+            color: #cbd5e1;
+            font-size: 13px;
+            text-align: right;
+        }
+
+        /* Konsole */
+        .console-card {
+            display: flex;
+            min-height: 0;
+            flex-direction: column;
+            padding: 14px;
+        }
+
+        .console-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 9px;
+        }
+
+        #log {
+            flex: 1;
+            min-height: 180px;
+            margin: 0;
+            padding: 12px;
+            overflow: auto;
+            border: 1px solid #26334a;
+            border-radius: 8px;
+            background: #050a13;
+            color: #d1d5db;
+            white-space: pre-wrap;
+            font: 12px/1.45 ui-monospace, SFMono-Regular, Consolas, monospace;
+        }
+
+        @media (max-width: 950px) {
+            main {
+                min-height: auto;
+            }
+
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .title {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 520px) {
+            body {
+                padding: 10px;
+            }
+
+            #steps {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <section class="card toolbar">
+            <div class="title">
+                <h1>ESP Firmware Installer</h1>
+            </div>
+
+            <label>
+                <select id="buildSelect" disabled></select>
+            </label>
+
+            <label class="erase-option">
+                <input id="fullErase" type="checkbox" checked>
+                Vollständig löschen
+            </label>
+
+            <button id="flashButton" disabled>
+                Installation starten
+            </button>
+
+            <button id="disconnectButton" class="secondary" disabled>
+                Trennen
+            </button>
+
+            <div id="status">Manifest wird geladen …</div>
+        </section>
+
+        <section class="dashboard">
+            <article class="card">
+                <h2>Installationsschritte</h2>
+
+                <ul id="steps">
+                    <li id="step-files">Firmware laden</li>
+                    <li id="step-port">Serial-Port auswählen</li>
+                    <li id="step-chip">Chip prüfen</li>
+                    <li id="step-erase">Flash löschen</li>
+                    <li id="step-bootloader">Bootloader schreiben</li>
+                    <li id="step-partitions">Partitionstabelle schreiben</li>
+                    <li id="step-firmware">Firmware schreiben</li>
+                    <li id="step-info">Firmware-Info lesen</li>
+                </ul>
+            </article>
+
+            <article class="card">
+                <h2>Erkannte Hardware</h2>
+
+                <dl>
+                    <dt>Chip</dt>
+                    <dd id="chipValue" class="empty">–</dd>
+
+                    <dt>Flash</dt>
+                    <dd id="flashValue" class="empty">–</dd>
+
+                    <dt>SRAM</dt>
+                    <dd id="sramValue" class="empty">–</dd>
+
+                    <dt>MAC</dt>
+                    <dd id="macValue" class="empty">–</dd>
+                </dl>
+            </article>
+
+            <article class="card">
+                <h2>Installierte Firmware</h2>
+
+                <dl>
+                    <dt>Name</dt>
+                    <dd id="fwName" class="empty">–</dd>
+
+                    <dt>Version</dt>
+                    <dd id="fwVersion" class="empty">–</dd>
+
+                    <dt>Build</dt>
+                    <dd id="fwBuild" class="empty">–</dd>
+                </dl>
+
+                <h2 style="margin-top: 18px;">Fortschritt</h2>
+                <progress id="progress" value="0" max="100"></progress>
+                <div id="progressText">0 %</div>
+            </article>
+        </section>
+
+        <section class="card console-card">
+            <div class="console-header">
+                <h2>Serielle Konsole</h2>
+                <span id="consoleState" class="empty">nicht verbunden</span>
+            </div>
+
+            <pre id="log"></pre>
+        </section>
+    </main>
+
+    <script type="module">
+        import {
+            ESPLoader,
+            Transport
+        } from "https://esm.sh/esptool-js@0.5.4?bundle";
+
+        const flashButton = document.querySelector("#flashButton");
+        const disconnectButton = document.querySelector("#disconnectButton");
+        const buildSelect = document.querySelector("#buildSelect");
+        const fullEraseCheckbox = document.querySelector("#fullErase");
+
+        const statusElement = document.querySelector("#status");
+        const logElement = document.querySelector("#log");
+        const progress = document.querySelector("#progress");
+        const progressText = document.querySelector("#progressText");
+        const consoleState = document.querySelector("#consoleState");
+
+        const chipValue = document.querySelector("#chipValue");
+        const flashValue = document.querySelector("#flashValue");
+        const sramValue = document.querySelector("#sramValue");
+        const macValue = document.querySelector("#macValue");
+
+        const fwName = document.querySelector("#fwName");
+        const fwVersion = document.querySelector("#fwVersion");
+        const fwBuild = document.querySelector("#fwBuild");
+
+        const steps = {
+            files: document.querySelector("#step-files"),
+            port: document.querySelector("#step-port"),
+            chip: document.querySelector("#step-chip"),
+            erase: document.querySelector("#step-erase"),
+            bootloader: document.querySelector("#step-bootloader"),
+            partitions: document.querySelector("#step-partitions"),
+            firmware: document.querySelector("#step-firmware"),
+            info: document.querySelector("#step-info")
+        };
+
+        let manifest;
+        let activePort = null;
+        let activeReader = null;
+        let espToolOutput = "";
+        let serialLineBuffer = "";
+
+        const chipProfiles = {
+            "ESP32": "520 KB SRAM",
+            "ESP32-S2": "320 KB SRAM",
+            "ESP32-S3": "512 KB SRAM",
+            "ESP32-C2": "272 KB SRAM",
+            "ESP32-C3": "400 KB SRAM",
+            "ESP32-C5": "384 KB SRAM",
+            "ESP32-C6": "512 KB SRAM",
+            "ESP32-H2": "320 KB SRAM",
+            "ESP8266": "ca. 80 KB nutzbares RAM"
+        };
+
+        function setStatus(text) {
+            statusElement.textContent = text;
+        }
+
+        function log(text) {
+            const value = String(text);
+
+            logElement.textContent += value.endsWith("\n")
+                ? value
+                : `${value}\n`;
+
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(value);
+        }
+
+        function setProgress(value) {
+            const percent = Math.max(0, Math.min(100, Math.round(value)));
+            progress.value = percent;
+            progressText.textContent = `${percent} %`;
+        }
+
+        function setValue(element, value) {
+            element.textContent = value || "–";
+            element.classList.toggle("empty", !value);
+        }
+
+        function resetSteps() {
+            Object.values(steps).forEach((step) => {
+                step.className = "";
+            });
+        }
+
+        function setStep(name, state) {
+            steps[name].className = state;
+        }
+
+        function setCurrentStep(name) {
+            Object.values(steps).forEach((step) => {
+                step.classList.remove("current");
+            });
+
+            setStep(name, "current");
+        }
+
+        function setStepDone(name) {
+            setStep(name, "done");
+        }
+
+        function setStepError(name) {
+            setStep(name, "error");
+        }
+
+        function getSelectedBuild() {
+            return manifest.builds[Number(buildSelect.value)];
+        }
+
+        function normalizeChipName(value) {
+            const match = String(value).toUpperCase()
+                .match(/ESP(?:8266|32(?:-[A-Z0-9]+)?)/);
+
+            return match ? match[0] : String(value).toUpperCase();
+        }
+
+        function chipMatches(expectedChip, detectedChip) {
+            return normalizeChipName(expectedChip) === normalizeChipName(detectedChip);
+        }
+
+        function arrayBufferToBinaryString(buffer) {
+            const bytes = new Uint8Array(buffer);
+            const chunkSize = 0x8000;
+            let result = "";
+
+            for (let start = 0; start < bytes.length; start += chunkSize) {
+                result += String.fromCharCode(
+                    ...bytes.subarray(start, start + chunkSize)
+                );
+            }
+
+            return result;
+        }
+
+        function partRole(part) {
+            const path = part.path.toLowerCase();
+
+            if (path.includes("bootloader")) return "bootloader";
+            if (path.includes("partition")) return "partitions";
+
+            return "firmware";
+        }
+
+        function showDetectedHardware(detectedChip) {
+            const normalizedChip = normalizeChipName(detectedChip);
+
+            setValue(chipValue, detectedChip);
+            setValue(sramValue, chipProfiles[normalizedChip] || "Unbekannt");
+
+            const flashMatch = espToolOutput.match(
+                /(?:Embedded Flash|Flash)\s+(\d+\s*(?:KB|MB))/i
+            );
+
+            const macMatch = espToolOutput.match(
+                /MAC:\s*([0-9a-f:]{17})/i
+            );
+
+            setValue(
+                flashValue,
+                flashMatch ? `${flashMatch[1]} (erkannt)` : "Nicht erkannt"
+            );
+
+            setValue(
+                macValue,
+                macMatch ? macMatch[1].toLowerCase() : "Nicht erkannt"
+            );
+        }
+
+        function parseFirmwareInfo(line) {
+            const match = line.match(/^@FWINFO\s+(.+)$/);
+
+            if (!match) return;
+
+            try {
+                const info = JSON.parse(match[1]);
+
+                setValue(fwName, info.name);
+                setValue(fwVersion, info.version);
+                setValue(fwBuild, info.build);
+
+                log(`[FWINFO erkannt] ${info.name} ${info.version}`);
+            } catch (error) {
+                console.warn("FWINFO konnte nicht geparst werden:", error);
+            }
+        }
+
+        function processSerialText(text) {
+            // Roh-Ausgabe bleibt immer vollständig in der Konsole sichtbar.
+            logElement.textContent += text;
+            logElement.scrollTop = logElement.scrollHeight;
+
+            // Für @FWINFO zeilenweise parsen.
+            serialLineBuffer += text;
+
+            const lines = serialLineBuffer.split(/\r?\n/);
+            serialLineBuffer = lines.pop();
+
+            for (const line of lines) {
+                parseFirmwareInfo(line.trim());
+            }
+        }
+
+        async function loadManifest() {
+            const response = await fetch("./manifest.json", {
+                cache: "no-store"
+            });
+
+            if (!response.ok) {
+                throw new Error(
+                    `manifest.json konnte nicht geladen werden (${response.status})`
+                );
+            }
+
+            manifest = await response.json();
+
+            if (!manifest.builds?.length) {
+                throw new Error("Keine Builds in manifest.json gefunden.");
+            }
+
+            for (const [index, build] of manifest.builds.entries()) {
+                const option = document.createElement("option");
+                option.value = index;
+                option.textContent =
+                    `${manifest.name || "Firmware"} – ` +
+                    `${build.expectedChip || build.chipFamily || "ESP"}`;
+
+                buildSelect.appendChild(option);
+            }
+
+            setStatus(`${manifest.name || "Firmware"} bereit.`);
+            flashButton.disabled = false;
+            buildSelect.disabled = false;
+        }
+
+        async function loadFirmwareParts(build) {
+            setCurrentStep("files");
+            setStatus("Firmware-Dateien werden geladen …");
+
+            const files = [];
+
+            for (const part of build.parts) {
+                log(`Lade ${part.path}`);
+
+                const response = await fetch(`./${part.path}`);
+
+                if (!response.ok) {
+                    throw new Error(`Firmware-Datei nicht gefunden: ${part.path}`);
+                }
+
+                const buffer = await response.arrayBuffer();
+
+                files.push({
+                    path: part.path,
+                    role: partRole(part),
+                    address: part.offset,
+                    data: arrayBufferToBinaryString(buffer)
+                });
+            }
+
+            setStepDone("files");
+            return files;
+        }
+
+        async function openConsoleAndRequestFirmwareInfo(port) {
+            setCurrentStep("info");
+            setStatus("Firmware startet – warte 3 Sekunden …");
+
+            // ESP bekommt nach dem Flashen bewusst Zeit zum Booten.
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+
+            setStatus("Öffne serielle Konsole …");
+
+            await port.open({ baudRate: 115200 });
+
+            activePort = port;
+            disconnectButton.disabled = false;
+            consoleState.textContent = "verbunden · 115200 Baud";
+            consoleState.classList.remove("empty");
+
+            const writer = port.writable.getWriter();
+
+            try {
+                const encoder = new TextEncoder();
+
+                log("> get firmware-info");
+                await writer.write(encoder.encode("get firmware-info\n"));
+            } finally {
+                writer.releaseLock();
+            }
+
+            setStepDone("info");
+            setStatus("Installation abgeschlossen. Serielle Konsole ist geöffnet.");
+
+            // Lesen bleibt aktiv, damit auch spätere Geräte-Ausgaben sichtbar bleiben.
+            activeReader = port.readable.getReader();
+            const decoder = new TextDecoder();
+
+            try {
+                while (activePort === port) {
+                    const { value, done } = await activeReader.read();
+
+                    if (done) {
+                        break;
+                    }
+
+                    if (value) {
+                        const text = decoder.decode(value, { stream: true });
+                        processSerialText(text);
+                    }
+                }
+            } catch (error) {
+                if (activePort === port) {
+                    log(`\nSerielle Verbindung beendet: ${error.message || error}`);
+                }
+            } finally {
+                try {
+                    activeReader.releaseLock();
+                } catch { }
+
+                activeReader = null;
+            }
+        }
+
+        async function disconnectConsole() {
+            const port = activePort;
+
+            activePort = null;
+            disconnectButton.disabled = true;
+
+            if (activeReader) {
+                try {
+                    await activeReader.cancel();
+                } catch { }
+            }
+
+            if (port) {
+                try {
+                    await port.close();
+                } catch { }
+            }
+
+            consoleState.textContent = "nicht verbunden";
+            consoleState.classList.add("empty");
+            setStatus("Serielle Konsole getrennt.");
+        }
+
+        async function flash() {
+            let transport = null;
+            let port = null;
+            let currentStep = "files";
+
+            try {
+                if (!navigator.serial) {
+                    throw new Error(
+                        "Web Serial ist nicht verfügbar. Bitte Chrome oder Edge verwenden."
+                    );
+                }
+
+                // Eventuell noch offene Konsole vom vorherigen Flash-Vorgang schließen.
+                await disconnectConsole();
+
+                flashButton.disabled = true;
+                buildSelect.disabled = true;
+                fullEraseCheckbox.disabled = true;
+
+                logElement.textContent = "";
+                espToolOutput = "";
+                serialLineBuffer = "";
+                setProgress(0);
+                resetSteps();
+
+                setValue(chipValue, "");
+                setValue(flashValue, "");
+                setValue(sramValue, "");
+                setValue(macValue, "");
+                setValue(fwName, "");
+                setValue(fwVersion, "");
+                setValue(fwBuild, "");
+
+                const build = getSelectedBuild();
+                const files = await loadFirmwareParts(build);
+
+                currentStep = "port";
+                setCurrentStep("port");
+                setStatus("Bitte Serial-Port im Browser auswählen …");
+
+                // Einziger unvermeidbarer Browser-Dialog.
+                port = await navigator.serial.requestPort();
+                setStepDone("port");
+
+                const terminal = {
+                    clean() { },
+
+                    write(data) {
+                        const text = String(data);
+                        espToolOutput += text;
+                        logElement.textContent += text;
+                        logElement.scrollTop = logElement.scrollHeight;
+                    },
+
+                    writeLine(data) {
+                        const text = String(data);
+                        espToolOutput += `${text}\n`;
+                        log(text);
+                    }
+                };
+
+                transport = new Transport(port, true);
+
+                const loader = new ESPLoader({
+                    transport,
+                    baudrate: 115200,
+                    romBaudrate: 115200,
+                    terminal
+                });
+
+                currentStep = "chip";
+                setCurrentStep("chip");
+                setStatus("Chip wird erkannt und geprüft …");
+
+                const detectedChip = await loader.main();
+
+                log(`Erkannter Chip: ${detectedChip}`);
+                showDetectedHardware(detectedChip);
+
+                const expectedChip = build.expectedChip || build.chipFamily;
+
+                if (expectedChip && !chipMatches(expectedChip, detectedChip)) {
+                    throw new Error(
+                        `Falscher Chip. Erwartet: ${expectedChip}; erkannt: ${detectedChip}. ` +
+                        `Es wurde nichts gelöscht oder geschrieben.`
+                    );
+                }
+
+                setStepDone("chip");
+
+                if (fullEraseCheckbox.checked) {
+                    currentStep = "erase";
+                    setCurrentStep("erase");
+                    setStatus("Flash wird vollständig gelöscht …");
+
+                    await loader.eraseFlash();
+                    setStepDone("erase");
+                } else {
+                    setStepDone("erase");
+                }
+
+                setStatus("Firmware wird geschrieben …");
+
+                const totalBytes = files.reduce(
+                    (total, file) => total + file.data.length,
+                    0
+                );
+
+                const writtenBeforeFile = [];
+                let position = 0;
+
+                for (const file of files) {
+                    writtenBeforeFile.push(position);
+                    position += file.data.length;
+                }
+
+                await loader.writeFlash({
+                    fileArray: files.map((file) => ({
+                        address: file.address,
+                        data: file.data
+                    })),
+
+                    flashSize: "keep",
+                    eraseAll: false,
+                    compress: true,
+
+                    reportProgress(fileIndex, written, total) {
+                        const file = files[fileIndex];
+                        const role = file.role;
+
+                        currentStep = role;
+                        setCurrentStep(role);
+
+                        const overallBytes =
+                            writtenBeforeFile[fileIndex] + Math.min(written, total);
+
+                        setProgress((overallBytes / totalBytes) * 100);
+
+                        if (written >= total) {
+                            setStepDone(role);
+                        }
+                    }
+                });
+
+                setStepDone("bootloader");
+                setStepDone("partitions");
+                setStepDone("firmware");
+                setProgress(100);
+
+                setStatus("Flashen abgeschlossen, ESP wird neu gestartet …");
+
+                // Stub verlassen, damit die neu geflashte Firmware bootet.
+                await transport.disconnect();
+                transport = null;
+
+                // Öffnet den Port wieder, wartet 3 Sekunden und sendet:
+                // get firmware-info
+                //
+                // Diese Funktion bleibt danach im Hintergrund offen und liest
+                // dauerhaft die serielle Ausgabe in die Konsole.
+                await openConsoleAndRequestFirmwareInfo(port);
+            } catch (error) {
+                console.error(error);
+                log(`\nFEHLER: ${error.message || error}`);
+
+                if (steps[currentStep]) {
+                    setStepError(currentStep);
+                }
+
+                setStatus(`Fehler: ${error.message || error}`);
+            } finally {
+                if (transport) {
+                    try {
+                        await transport.disconnect();
+                    } catch { }
+                }
+
+                flashButton.disabled = false;
+                buildSelect.disabled = false;
+                fullEraseCheckbox.disabled = false;
+            }
+        }
+
+        flashButton.addEventListener("click", flash);
+        disconnectButton.addEventListener("click", disconnectConsole);
+
+        loadManifest().catch((error) => {
+            setStatus(`Manifest-Fehler: ${error.message}`);
+            log(`FEHLER: ${error.message}`);
+        });
+    </script>
+</body>
+
+</html>
