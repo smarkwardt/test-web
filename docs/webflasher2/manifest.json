@@ -4,6 +4,7 @@
     "builds": [
         {
             "chipFamily": "ESP32-C3",
+            "eraseFlash": false,
             "parts": [
                 {
                     "path": "firmware/bootloader.bin",
