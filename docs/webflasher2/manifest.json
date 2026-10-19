@@ -1,7 +1,7 @@
 {
     "name": "SuperVolt Display mini",
     "version": "0.1.0",
-    "eraseFlash": false,
+    "eraseFlash": true,
     "verifyInstallation": false,
     "_expectedFirmware": {
         "name": "supervolt-rs485",

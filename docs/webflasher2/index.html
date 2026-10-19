@@ -89,6 +89,14 @@
             letter-spacing: -.03em;
         }
 
+        .display-preview {
+            display: block;
+            width: min(460px, 100%);
+            height: auto;
+            margin: 18px auto 16px;
+            filter: drop-shadow(0 16px 28px rgba(0, 0, 0, .42));
+        }
+
         .subtitle {
             max-width: 460px;
             margin: 13px auto 24px;
@@ -498,6 +506,13 @@
         <img class="logo" src="./logo.webp" alt="SuperVolt">
 
         <h1>SuperVolt Display mini</h1>
+
+        <img
+            class="display-preview"
+            src="./display.png"
+            alt="Vorschau des SuperVolt Display mini mit Rahmen und angezeigten Messwerten"
+            width="969"
+            height="600">
 
         <p class="subtitle">
             Installiere die aktuelle Firmware direkt über USB im Browser.
@@ -971,21 +986,33 @@
             }
         }
 
-        async function requestFirmwareInfo(port, build) {
-            setCurrentStep("info");
-            setStatus("Firmware startet …");
+        async function pulseResetSignals(port) {
+            await port.setSignals({
+                dataTerminalReady: false,
+                requestToSend: true
+            });
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            await port.setSignals({
+                dataTerminalReady: false,
+                requestToSend: false
+            });
+            await new Promise((resolve) => setTimeout(resolve, 500));
+        }
 
+        async function requestFirmwareInfo(port, build) {
             await port.open({ baudRate: 115200 });
 
             try {
-                await port.setSignals({
-                    dataTerminalReady: false,
-                    requestToSend: false
-                });
-            } catch {
-                // Nicht jeder USB-Serial-Adapter unterstützt dies.
+                await pulseResetSignals(port);
+            } catch (error) {
+                try {
+                    await port.close();
+                } catch { }
+                throw new Error(`ESP konnte nicht zurückgesetzt werden: ${error.message || error}`);
             }
 
+            setCurrentStep("info");
+            setStatus("Firmware startet …");
             activePort = port;
 
             // Leser starten, bevor der ESP seine Boot-Ausgabe sendet.
@@ -1170,6 +1197,15 @@
                 if (verifyInstallation) {
                     await requestFirmwareInfo(port, build);
                 } else {
+                    await port.open({ baudRate: 115200 });
+                    try {
+                        await pulseResetSignals(port);
+                    } finally {
+                        try {
+                            await port.close();
+                        } catch { }
+                    }
+
                     setStepSkipped("info");
                     setStatus("Installation erfolgreich abgeschlossen (Prüfung übersprungen).");
                     showSuccess(false);
