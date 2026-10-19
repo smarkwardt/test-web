@@ -34,11 +34,11 @@
             border: 0;
             border-radius: 9px;
             padding: 11px 18px;
-            font: inherit;
-            font-weight: 650;
             color: white;
             background: #2563eb;
             cursor: pointer;
+            font: inherit;
+            font-weight: 650;
         }
 
         button:hover:not(:disabled) {
@@ -148,7 +148,7 @@
         }
 
         dialog {
-            width: min(540px, calc(100% - 28px));
+            width: min(560px, calc(100% - 28px));
             max-height: calc(100dvh - 28px);
             padding: 0;
             overflow: hidden;
@@ -169,11 +169,13 @@
             align-items: center;
             justify-content: space-between;
             gap: 12px;
-            padding: 14px 18px;
+            min-height: 59px;
+            padding: 12px 18px;
             border-bottom: 1px solid #273c58;
         }
 
         .modal-header h2 {
+            flex: 1;
             font-size: 16px;
         }
 
@@ -194,12 +196,12 @@
         }
 
         .modal-content {
-            padding: 18px;
+            padding: 16px 18px;
         }
 
         #status {
-            min-height: 19px;
-            margin-bottom: 13px;
+            min-height: 18px;
+            margin-bottom: 10px;
             color: #bfdbfe;
             font-size: 13px;
         }
@@ -207,7 +209,7 @@
         #steps {
             display: flex;
             flex-direction: column;
-            gap: 7px;
+            gap: 4px;
             padding: 0;
             margin: 0;
             list-style: none;
@@ -216,23 +218,27 @@
         #steps li {
             display: flex;
             align-items: center;
-            min-height: 40px;
-            padding: 8px 10px;
+            min-height: 35px;
+            padding: 6px 9px;
             border: 1px solid transparent;
             border-radius: 8px;
             color: #91a2bb;
             font-size: 14px;
         }
 
+        #steps li[hidden] {
+            display: none;
+        }
+
         #steps li::before {
-            width: 27px;
-            height: 27px;
+            width: 25px;
+            height: 25px;
             display: grid;
-            flex: 0 0 27px;
+            flex: 0 0 25px;
             place-items: center;
             content: "○";
             color: #64748b;
-            font-size: 18px;
+            font-size: 17px;
             font-weight: bold;
         }
 
@@ -242,7 +248,7 @@
             color: #fde68a;
         }
 
-        /* Sichtbarer, aber dezenter Aktivitätsindikator */
+        /* Kreisrunder Spinner für den aktiven Schritt */
         #steps li.current::before {
             display: block;
             width: 18px;
@@ -250,14 +256,12 @@
             min-width: 18px;
             min-height: 18px;
             flex: 0 0 18px;
-            margin: 0 9px 0 5px;
-            box-sizing: border-box;
-
+            margin: 0 8px 0 3px;
             content: "";
             border: 2px solid rgba(251, 191, 36, .22);
             border-top-color: #fbbf24;
+            border-right-color: #fbbf24;
             border-radius: 50%;
-
             animation: spin .75s linear infinite;
         }
 
@@ -312,25 +316,76 @@
             }
         }
 
-        .success {
-            display: none;
-            margin-top: 14px;
-            padding: 12px 13px;
-            border: 1px solid #285e4c;
-            border-radius: 9px;
-            color: #bbf7d0;
-            background: #102b29;
-            font-size: 13px;
+        .live-console {
+            margin-top: 12px;
+            overflow: hidden;
+            border: 1px solid #263a55;
+            border-radius: 8px;
+            background: #02060c;
         }
 
-        .success.visible {
+        .live-console-header {
+            padding: 7px 10px;
+            border-bottom: 1px solid #1b2b40;
+            color: #8093ad;
+            background: #09111d;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+        }
+
+        #liveLog {
+            height: 125px;
+            margin: 0;
+            padding: 10px;
+            overflow: auto;
+            color: #d1d5db;
+            background: #02060c;
+            white-space: pre-wrap;
+            font: 11px/1.4 ui-monospace, SFMono-Regular, Consolas, monospace;
+        }
+
+        .success-screen {
+            display: none;
+            padding: 25px 10px 10px;
+            text-align: center;
+        }
+
+        .success-screen.visible {
             display: block;
+        }
+
+        .success-icon {
+            width: 74px;
+            height: 74px;
+            display: grid;
+            place-items: center;
+            margin: 0 auto 17px;
+            border: 3px solid #22c55e;
+            border-radius: 50%;
+            color: #bbf7d0;
+            background: #102b29;
+            font-size: 43px;
+            font-weight: 800;
+        }
+
+        .success-screen h3 {
+            margin-bottom: 8px;
+            color: #dcfce7;
+            font-size: 20px;
+        }
+
+        .success-screen p {
+            color: #9ecbb8;
+            font-size: 14px;
         }
 
         .debug-actions {
             display: flex;
+            justify-content: center;
             gap: 8px;
-            margin-top: 14px;
+            margin-top: 18px;
         }
 
         .debug-actions button {
@@ -347,78 +402,53 @@
         .modal-footer {
             display: flex;
             justify-content: flex-end;
-            padding: 13px 18px;
+            padding: 12px 18px;
             border-top: 1px solid #273c58;
         }
 
-        /* Debug-Ansicht ersetzt die normale Installationsansicht. */
         #debugView {
             display: none;
-            flex-direction: column;
             min-height: 430px;
         }
 
         #debugView.visible {
-            display: flex;
+            display: block;
         }
 
         #installView.hidden {
             display: none;
         }
 
-        .debug-tabs {
-            display: flex;
-            gap: 4px;
-            padding: 14px 18px 0;
-            border-bottom: 1px solid #273c58;
+        .debug-content {
+            min-height: 430px;
+            padding: 16px;
         }
 
-        .tab-button {
-            padding: 8px 11px;
-            border-radius: 7px 7px 0 0;
-            color: #9fb0c8;
-            background: transparent;
-            font-size: 12px;
-        }
-
-        .tab-button.active {
-            color: #dbeafe;
-            background: #1d3150;
-        }
-
-        .tab-panel {
-            display: none;
-            min-height: 0;
-            flex: 1;
-        }
-
-        .tab-panel.active {
-            display: block;
-        }
-
-        #tab-console.active {
-            display: flex;
-            flex-direction: column;
-        }
-
-        #log {
-            flex: 1;
-            height: min(420px, 55dvh);
-            min-height: 280px;
-            margin: 0;
-            padding: 14px 18px;
+        .console-box {
+            height: min(540px, calc(100dvh - 145px));
+            min-height: 360px;
             overflow: auto;
-            color: #cbd5e1;
+            border: 1px solid #263a55;
+            border-radius: 9px;
+            background: #02060c;
+            box-shadow: inset 0 0 18px rgba(0, 0, 0, .55);
+        }
+
+        #fullLog {
+            min-height: 100%;
+            margin: 0;
+            padding: 14px;
+            color: #d1d5db;
             white-space: pre-wrap;
             font: 12px/1.45 ui-monospace, SFMono-Regular, Consolas, monospace;
         }
 
         .technical-info {
             display: grid;
-            grid-template-columns: 115px 1fr;
-            gap: 9px 12px;
+            grid-template-columns: 120px 1fr;
+            gap: 10px 14px;
             margin: 0;
-            padding: 20px;
+            padding: 7px;
             color: #d7e2f3;
             font-size: 13px;
         }
@@ -452,8 +482,12 @@
                 padding-right: 15px;
             }
 
-            #log {
-                min-height: 260px;
+            #liveLog {
+                height: 110px;
+            }
+
+            .console-box {
+                min-height: 300px;
             }
         }
     </style>
@@ -507,20 +541,29 @@
 
         <section id="installView">
             <div class="modal-content">
-                <div id="status">Bereit.</div>
+                <div id="processContent">
+                    <div id="status">Bereit.</div>
 
-                <ul id="steps">
-                    <li id="step-chip">Gerät prüfen</li>
-                    <li id="step-erase">Speicher löschen</li>
-                    <li id="step-install">
-                        Firmware installieren
-                        <span id="installPercent" class="step-progress">0 %</span>
-                    </li>
-                    <li id="step-info">Installation prüfen</li>
-                </ul>
+                    <ul id="steps">
+                        <li id="step-chip">Gerät prüfen</li>
+                        <li id="step-erase">Speicher löschen</li>
+                        <li id="step-install">
+                            Firmware installieren
+                            <span id="installPercent" class="step-progress">0 %</span>
+                        </li>
+                        <li id="step-info">Installation prüfen</li>
+                    </ul>
 
-                <div id="success" class="success">
-                    ✓ Die Firmware wurde erfolgreich installiert und geprüft.
+                    <div class="live-console">
+                        <div class="live-console-header">Live-Konsole</div>
+                        <pre id="liveLog"></pre>
+                    </div>
+                </div>
+
+                <div id="successScreen" class="success-screen">
+                    <div class="success-icon">✓</div>
+                    <h3>Installation erfolgreich</h3>
+                    <p>Die Firmware wurde installiert und erfolgreich geprüft.</p>
                 </div>
 
                 <div class="debug-actions">
@@ -535,16 +578,13 @@
         </section>
 
         <section id="debugView">
-            <div class="debug-tabs">
-                <button class="tab-button active" data-tab="console">Konsole</button>
-                <button class="tab-button" data-tab="device">Geräteinformationen</button>
+            <div id="consolePage" class="debug-content">
+                <div class="console-box">
+                    <pre id="fullLog"></pre>
+                </div>
             </div>
 
-            <section id="tab-console" class="tab-panel active">
-                <pre id="log"></pre>
-            </section>
-
-            <section id="tab-device" class="tab-panel">
+            <div id="devicePage" class="debug-content" hidden>
                 <dl class="technical-info">
                     <dt>Erkannter Chip</dt>
                     <dd id="chipValue">–</dd>
@@ -561,7 +601,7 @@
                     <dt>Build</dt>
                     <dd id="firmwareBuildValue">–</dd>
                 </dl>
-            </section>
+            </div>
         </section>
     </dialog>
 
@@ -582,23 +622,27 @@
 
         const installView = document.querySelector("#installView");
         const debugView = document.querySelector("#debugView");
+        const processContent = document.querySelector("#processContent");
+        const successScreen = document.querySelector("#successScreen");
 
         const showConsoleButton = document.querySelector("#showConsoleButton");
         const showDeviceButton = document.querySelector("#showDeviceButton");
 
+        const consolePage = document.querySelector("#consolePage");
+        const devicePage = document.querySelector("#devicePage");
+
         const statusElement = document.querySelector("#status");
         const installPercent = document.querySelector("#installPercent");
-        const successElement = document.querySelector("#success");
-        const logElement = document.querySelector("#log");
+        const successMessage = successScreen.querySelector("p");
+
+        const liveLogElement = document.querySelector("#liveLog");
+        const fullLogElement = document.querySelector("#fullLog");
 
         const chipValue = document.querySelector("#chipValue");
         const flashValue = document.querySelector("#flashValue");
         const macValue = document.querySelector("#macValue");
         const firmwareValue = document.querySelector("#firmwareValue");
         const firmwareBuildValue = document.querySelector("#firmwareBuildValue");
-
-        const tabButtons = document.querySelectorAll(".tab-button");
-        const tabPanels = document.querySelectorAll(".tab-panel");
 
         const steps = {
             chip: document.querySelector("#step-chip"),
@@ -620,21 +664,23 @@
             statusElement.textContent = text;
         }
 
-        function log(text) {
+        function appendLog(text) {
             const value = String(text);
 
-            logElement.textContent += value.endsWith("\n")
-                ? value
-                : `${value}\n`;
+            liveLogElement.textContent += value;
+            fullLogElement.textContent += value;
 
-            logElement.scrollTop = logElement.scrollHeight;
+            liveLogElement.scrollTop = liveLogElement.scrollHeight;
+
+            const consoleBox = fullLogElement.parentElement;
+            consoleBox.scrollTop = consoleBox.scrollHeight;
+
             console.log(value);
         }
 
-        function appendConsole(text) {
-            logElement.textContent += text;
-            logElement.scrollTop = logElement.scrollHeight;
-            console.log("[ESP]", text);
+        function log(text) {
+            const value = String(text);
+            appendLog(value.endsWith("\n") ? value : `${value}\n`);
         }
 
         function resetSteps() {
@@ -692,6 +738,16 @@
 
         function shouldEraseFlash(build) {
             return build.eraseFlash ?? manifest.eraseFlash ?? false;
+        }
+
+        function shouldVerifyInstallation(build) {
+            const value = build.verifyInstallation ?? manifest.verifyInstallation ?? true;
+
+            if (typeof value !== "boolean") {
+                throw new Error("verifyInstallation in manifest.json muss true oder false sein.");
+            }
+
+            return value;
         }
 
         function expectedFirmwareMatches(info, build) {
@@ -754,7 +810,7 @@
         }
 
         function processSerialText(text) {
-            appendConsole(text);
+            appendLog(text);
 
             serialLineBuffer += text;
 
@@ -766,25 +822,27 @@
             }
         }
 
-        function activateTab(tabName) {
-            tabButtons.forEach((button) => {
-                button.classList.toggle("active", button.dataset.tab === tabName);
-            });
-
-            tabPanels.forEach((panel) => {
-                panel.classList.toggle("active", panel.id === `tab-${tabName}`);
-            });
-        }
-
-        function showDebugView(tabName) {
-            activateTab(tabName);
-
+        function showDebugView(type) {
             installView.classList.add("hidden");
             debugView.classList.add("visible");
 
             backButton.hidden = false;
-            dialogTitle.textContent =
-                tabName === "console" ? "Serielle Konsole" : "Geräteinformationen";
+
+            const showConsole = type === "console";
+
+            consolePage.hidden = !showConsole;
+            devicePage.hidden = showConsole;
+
+            dialogTitle.textContent = showConsole
+                ? "Serielle Konsole"
+                : "Technische Details";
+
+            if (showConsole) {
+                const consoleBox = fullLogElement.parentElement;
+                requestAnimationFrame(() => {
+                    consoleBox.scrollTop = consoleBox.scrollHeight;
+                });
+            }
         }
 
         function showInstallView() {
@@ -793,6 +851,14 @@
 
             backButton.hidden = true;
             dialogTitle.textContent = "Firmware-Installation";
+        }
+
+        function showSuccess(verified) {
+            processContent.hidden = true;
+            successMessage.textContent = verified
+                ? "Die Firmware wurde installiert und erfolgreich geprüft."
+                : "Die Firmware wurde installiert. Die Prüfung wurde übersprungen.";
+            successScreen.classList.add("visible");
         }
 
         async function loadManifest() {
@@ -922,7 +988,7 @@
 
             activePort = port;
 
-            // Reader zuerst starten, damit Boot-Meldungen erfasst werden.
+            // Leser starten, bevor der ESP seine Boot-Ausgabe sendet.
             void startReader(port);
 
             setStatus("Warte auf die gestartete Firmware …");
@@ -952,11 +1018,10 @@
             }
 
             setStepDone("info");
-            successElement.classList.add("visible");
             setStatus("Installation erfolgreich abgeschlossen.");
 
-            // Nach Prüfung Port und Reader schließen.
             await disconnectConsole();
+            showSuccess(true);
         }
 
         async function startInstallation() {
@@ -979,7 +1044,8 @@
                 showInstallView();
                 installDialog.showModal();
 
-                logElement.textContent = "";
+                liveLogElement.textContent = "";
+                fullLogElement.textContent = "";
                 espToolOutput = "";
                 serialLineBuffer = "";
 
@@ -989,13 +1055,16 @@
                 firmwareValue.textContent = "–";
                 firmwareBuildValue.textContent = "–";
 
-                successElement.classList.remove("visible");
+                processContent.hidden = false;
+                successScreen.classList.remove("visible");
                 resetSteps();
 
                 setStatus("Firmware wird vorbereitet …");
 
                 const build = manifest.builds[0];
                 const eraseFlash = shouldEraseFlash(build);
+                const verifyInstallation = shouldVerifyInstallation(build);
+                steps.info.hidden = !verifyInstallation;
                 const files = await loadFirmwareParts(build);
 
                 setStatus("Bitte wähle den Serial-Port deines Geräts aus …");
@@ -1007,7 +1076,7 @@
                     write(data) {
                         const text = String(data);
                         espToolOutput += text;
-                        appendConsole(text);
+                        appendLog(text);
                     },
 
                     writeLine(data) {
@@ -1098,7 +1167,13 @@
                 await transport.disconnect();
                 transport = null;
 
-                await requestFirmwareInfo(port, build);
+                if (verifyInstallation) {
+                    await requestFirmwareInfo(port, build);
+                } else {
+                    setStepSkipped("info");
+                    setStatus("Installation erfolgreich abgeschlossen (Prüfung übersprungen).");
+                    showSuccess(false);
+                }
             } catch (error) {
                 console.error(error);
                 log(`\nFEHLER: ${error.message || error}`);
@@ -1141,18 +1216,6 @@
 
         showDeviceButton.addEventListener("click", () => {
             showDebugView("device");
-        });
-
-        tabButtons.forEach((button) => {
-            button.addEventListener("click", () => {
-                const tabName = button.dataset.tab;
-                activateTab(tabName);
-
-                dialogTitle.textContent =
-                    tabName === "console"
-                        ? "Serielle Konsole"
-                        : "Geräteinformationen";
-            });
         });
 
         loadManifest().catch((error) => {
