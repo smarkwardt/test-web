@@ -1,0 +1,34 @@
+{
+    "name": "SuperVolt Display mini",
+    "version": "0.1.0",
+    "eraseFlash": true,
+    "verifyInstallation": false,
+    "_expectedFirmware": {
+        "name": "supervolt-rs485",
+        "version": "0.0.1"
+    },
+    "builds": [
+        {
+            "chipFamily": "ESP32-S3",
+            "expectedChip": "ESP32-S3",
+            "parts": [
+                {
+                    "path": "firmware/bootloader.bin",
+                    "offset": 0
+                },
+                {
+                    "path": "firmware/partitions.bin",
+                    "offset": 32768
+                },
+                {
+                    "path": "firmware/boot_app0.bin",
+                    "offset": 57344
+                },
+                {
+                    "path": "firmware/firmware.bin",
+                    "offset": 65536
+                }
+            ]
+        }
+    ]
+}
