@@ -148,6 +148,20 @@
             font-size: 16px;
         }
 
+        .debug-link {
+            display: inline-block;
+            margin-top: 15px;
+            color: #93c5fd;
+            font-size: 13px;
+            text-decoration: none;
+        }
+
+        .debug-link:hover {
+            color: #bfdbfe;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
         #landingStatus {
             min-height: 18px;
             margin-top: 14px;
@@ -543,6 +557,8 @@
         </p>
 
         <button id="startButton" disabled>Firmware installieren</button>
+        <br>
+        <a class="debug-link" href="../debug/">Serielle Debug-Konsole öffnen →</a>
 
         <div id="landingStatus">Firmware wird vorbereitet …</div>
     </section>
