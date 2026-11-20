@@ -5,7 +5,8 @@
   "verifyInstallation": false,
   "_expectedFirmware": {
     "name": "supervolt-rs485",
-    "version": "0.3.1"
+    "version": "0.3.1",
+    "test": "123"
   },
   "builds": [
     {
