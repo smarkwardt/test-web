@@ -1,0 +1,1083 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#101723" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <title>Highway Blaster</title>
+
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #101723;
+        --blue: #36adff;
+        --text: #eaf4ff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          system-ui,
+          -apple-system,
+          sans-serif;
+        overscroll-behavior: none;
+      }
+
+      button {
+        font: inherit;
+        color: inherit;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      #app {
+        height: 100vh;
+        height: 100dvh;
+        max-width: 1100px;
+        margin: auto;
+        display: flex;
+        flex-direction: column;
+        padding-top: env(safe-area-inset-top);
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+        user-select: none;
+        -webkit-user-select: none;
+      }
+
+      header {
+        flex: none;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 14px;
+        background: #101723;
+        border-bottom: 1px solid #293a50;
+      }
+
+      .brand {
+        color: var(--blue);
+        font-size: 14px;
+        font-weight: 900;
+        letter-spacing: 1px;
+        line-height: 1.15;
+      }
+
+      .stats {
+        flex: 1;
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+        font-size: 15px;
+        font-weight: 800;
+      }
+
+      .stats small {
+        display: block;
+        color: #9aadc4;
+        font-size: 10px;
+        font-weight: 500;
+        margin-top: 3px;
+      }
+
+      #lives {
+        color: #ff7474;
+        white-space: nowrap;
+        font-size: 17px;
+      }
+
+      .icon-button {
+        border: 1px solid #34475e;
+        border-radius: 10px;
+        background: #203047;
+        min-width: 44px;
+        min-height: 44px;
+        font-weight: 800;
+      }
+
+      #stage {
+        flex: 1;
+        min-height: 0;
+        position: relative;
+        overflow: hidden;
+        background: #18352c;
+        touch-action: none;
+      }
+
+      canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+        touch-action: none;
+      }
+
+      #overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(7, 14, 23, 0.82);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 18px;
+        z-index: 5;
+      }
+
+      #overlay[hidden] {
+        display: none;
+      }
+
+      .panel {
+        width: min(420px, 100%);
+        max-height: 100%;
+        overflow: auto;
+        padding: 26px;
+        border: 1px solid #3d6484;
+        border-radius: 20px;
+        background: linear-gradient(145deg, #1c2c42, #101723);
+        text-align: center;
+        box-shadow: 0 20px 70px #0008;
+      }
+
+      .eyebrow {
+        color: var(--blue);
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 3px;
+      }
+
+      h1 {
+        margin: 10px 0;
+        font-size: clamp(25px, 6vw, 38px);
+        line-height: 1.05;
+      }
+
+      #message {
+        color: #b5c6da;
+        line-height: 1.6;
+        font-size: 14px;
+        margin: 18px 0;
+      }
+
+      .primary,
+      .secondary {
+        width: 100%;
+        min-height: 48px;
+        border-radius: 12px;
+        font-weight: 900;
+        border: 0;
+      }
+
+      .primary {
+        background: var(--blue);
+        color: #071a2b;
+        box-shadow: 0 6px 24px #36adff30;
+      }
+
+      .secondary {
+        margin-top: 10px;
+        background: #293b51;
+      }
+
+      .secondary[hidden] {
+        display: none;
+      }
+
+      #controls {
+        flex: none;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 10px 24px;
+        padding-bottom: calc(10px + env(safe-area-inset-bottom));
+        border-top: 1px solid #293a50;
+        background: #101723;
+      }
+
+      #joystick {
+        width: 110px;
+        height: 110px;
+        flex: none;
+        border-radius: 50%;
+        border: 2px solid #3a536d;
+        background:
+          linear-gradient(
+            90deg,
+            transparent 49%,
+            #405a7038 50%,
+            transparent 51%
+          ),
+          linear-gradient(transparent 49%, #405a7038 50%, transparent 51%),
+          radial-gradient(circle, #253b52, #172536);
+        position: relative;
+        touch-action: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      #stick {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 46px;
+        height: 46px;
+        margin-left: -23px;
+        margin-top: -23px;
+        border-radius: 50%;
+        background: linear-gradient(145deg, #59beff, #187bca);
+        border: 2px solid #8cd3ff;
+        box-shadow: 0 4px 16px #0007;
+        pointer-events: none;
+      }
+
+      .control-hint {
+        text-align: center;
+        font-size: 11px;
+        line-height: 1.7;
+        color: #91a8c1;
+      }
+
+      #fire {
+        flex: none;
+        width: 104px;
+        height: 104px;
+        border-radius: 50%;
+        border: 3px solid #ffbb76;
+        background: radial-gradient(circle at 35% 25%, #ffae50, #d84b23);
+        box-shadow:
+          0 0 28px #ff701b20,
+          inset 0 -6px 12px #9b281d70;
+        color: #fff;
+        font-size: 17px;
+        font-weight: 900;
+        letter-spacing: 1px;
+        touch-action: none;
+      }
+
+      #fire.active {
+        background: #ffd17a;
+        color: #572200;
+        box-shadow: 0 0 32px #ff9d4870;
+        transform: scale(0.96);
+      }
+
+      @media (max-width: 380px) {
+        header {
+          gap: 8px;
+          padding: 8px;
+        }
+        .brand {
+          font-size: 12px;
+        }
+        #controls {
+          padding-left: 14px;
+          padding-right: 14px;
+        }
+        .control-hint {
+          font-size: 10px;
+        }
+      }
+
+      @media (max-height: 500px) and (orientation: landscape) {
+        header {
+          padding: 5px 14px;
+        }
+        #controls {
+          position: absolute;
+          left: max(16px, env(safe-area-inset-left));
+          right: max(16px, env(safe-area-inset-right));
+          bottom: env(safe-area-inset-bottom);
+          background: transparent;
+          border: 0;
+          pointer-events: none;
+          padding: 10px 0;
+          z-index: 2;
+        }
+        #joystick,
+        #fire {
+          pointer-events: auto;
+          opacity: 0.85;
+        }
+        #joystick {
+          width: 96px;
+          height: 96px;
+        }
+        #fire {
+          width: 90px;
+          height: 90px;
+        }
+        .control-hint {
+          display: none;
+        }
+        .panel {
+          padding: 16px;
+        }
+        #message {
+          margin: 10px 0;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="app">
+      <header>
+        <div class="brand">HIGHWAY<br />BLASTER</div>
+        <div class="stats">
+          <span id="score">000000</span>
+          <small id="details">0 Abschüsse · Rekord 0</small>
+        </div>
+        <div id="lives" aria-label="3 Leben">♥♥♥</div>
+        <button id="pause" class="icon-button" aria-label="Pause">Ⅱ</button>
+      </header>
+
+      <main id="stage">
+        <canvas id="game" aria-label="Highway Blaster Spielfeld"></canvas>
+
+        <div id="overlay">
+          <section class="panel">
+            <div class="eyebrow">ARCADE RACING</div>
+            <h1 id="title">HIGHWAY<br />BLASTER</h1>
+            <p id="message">
+              Weiche den Autos aus oder schieße sie ab!<br />
+              Links lenken, rechts FEUER gedrückt halten.<br />
+              Am Computer: WASD / Pfeile und Leertaste.
+            </p>
+            <button id="play" class="primary">LOSFAHREN</button>
+            <button id="restart" class="secondary" hidden>NEUSTART</button>
+          </section>
+        </div>
+      </main>
+
+      <footer id="controls">
+        <div id="joystick" role="group" aria-label="Touch-Joystick zum Lenken">
+          <div id="stick"></div>
+        </div>
+        <div class="control-hint">
+          AUSWEICHEN.<br />FEUERN.<br />REKORD KNACKEN.
+        </div>
+        <button id="fire" aria-label="Feuer – gedrückt halten">FEUER</button>
+      </footer>
+    </div>
+
+    <script>
+      "use strict";
+
+      (() => {
+        const $ = (id) => document.getElementById(id);
+        const canvas = $("game");
+        const ctx = canvas.getContext("2d");
+        const stage = $("stage");
+
+        const W = 900;
+        let H = 700;
+        const LEFT = 160;
+        const RIGHT = 740;
+        const LANES = 4;
+        const LANE_WIDTH = (RIGHT - LEFT) / LANES;
+
+        const colors = ["#ff595e", "#ffac45", "#aa7bff", "#55d6a0", "#e56bcb"];
+        const keys = new Set();
+        const firePointers = new Set();
+
+        let joystickPointer = null;
+        let joyX = 0;
+        let joyY = 0;
+
+        let player;
+        let enemies = [];
+        let bullets = [];
+        let particles = [];
+        let score = 0;
+        let kills = 0;
+        let lives = 3;
+        let elapsed = 0;
+        let distance = 0;
+        let spawnTimer = 0.7;
+        let fireTimer = 0;
+        let invulnerable = 0;
+        let shake = 0;
+        let state = "ready";
+        let record = 0;
+
+        try {
+          record = Number(localStorage.getItem("highway-blaster-record")) || 0;
+        } catch (_) {}
+
+        const rand = (a, b) => a + Math.random() * (b - a);
+        const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+        const choose = (array) =>
+          array[Math.floor(Math.random() * array.length)];
+
+        function curve(y) {
+          const d = distance - y;
+          return 90 * Math.sin(d / 550) + 35 * Math.sin(d / 270);
+        }
+
+        function laneX(lane, y) {
+          return LEFT + LANE_WIDTH * (lane + 0.5) + curve(y);
+        }
+
+        function clearInput() {
+          keys.clear();
+          firePointers.clear();
+          joystickPointer = null;
+          joyX = joyY = 0;
+          $("stick").style.transform = "translate(0px, 0px)";
+          $("fire").classList.remove("active");
+        }
+
+        function saveRecord() {
+          record = Math.max(record, Math.floor(score));
+          try {
+            localStorage.setItem("highway-blaster-record", String(record));
+          } catch (_) {}
+        }
+
+        function resize() {
+          const rect = stage.getBoundingClientRect();
+          if (!rect.width || !rect.height) return;
+
+          const previousH = H;
+          // Im Hochformat mehr Strecke zeigen, statt das Bild zu verzerren.
+          H = (W * rect.height) / rect.width;
+
+          const dpr = Math.min(window.devicePixelRatio || 1, 2);
+          canvas.width = Math.round(rect.width * dpr);
+          canvas.height = Math.round(rect.height * dpr);
+          ctx.setTransform(canvas.width / W, 0, 0, canvas.height / H, 0, 0);
+
+          if (player) {
+            player.y = clamp(
+              player.y + H - previousH,
+              Math.min(150, H / 3),
+              H - 55,
+            );
+            player.x = clamp(
+              player.x,
+              LEFT + curve(player.y) + 30,
+              RIGHT + curve(player.y) - 30,
+            );
+          }
+        }
+
+        function reset() {
+          saveRecord();
+          clearInput();
+
+          score = 0;
+          kills = 0;
+          lives = 3;
+          elapsed = 0;
+          distance = 0;
+          spawnTimer = 0.7;
+          fireTimer = 0;
+          invulnerable = 0;
+          shake = 0;
+          enemies = [];
+          bullets = [];
+          particles = [];
+          player = { x: 450 + curve(H - 110), y: H - 110 };
+
+          state = "playing";
+          $("overlay").hidden = true;
+          $("pause").textContent = "Ⅱ";
+          $("pause").setAttribute("aria-label", "Pause");
+          updateHUD();
+        }
+
+        function showOverlay(title, message, button, canRestart) {
+          $("title").textContent = title;
+          $("message").textContent = message;
+          $("play").textContent = button;
+          $("restart").hidden = !canRestart;
+          $("overlay").hidden = false;
+        }
+
+        function pauseGame() {
+          if (state !== "playing") return;
+          state = "paused";
+          clearInput();
+          saveRecord();
+          $("pause").textContent = "▶";
+          $("pause").setAttribute("aria-label", "Fortsetzen");
+          showOverlay(
+            "PAUSE",
+            "Kurz durchatmen. Deine Runde wartet auf dich.",
+            "WEITERFAHREN",
+            true,
+          );
+        }
+
+        function resumeGame() {
+          if (state !== "paused") return;
+          clearInput();
+          state = "playing";
+          $("overlay").hidden = true;
+          $("pause").textContent = "Ⅱ";
+          $("pause").setAttribute("aria-label", "Pause");
+        }
+
+        function gameOver() {
+          state = "over";
+          clearInput();
+          saveRecord();
+          showOverlay(
+            "GAME OVER",
+            `${Math.floor(score)} Punkte · ${kills} Abschüsse · Rekord ${record}`,
+            "NOCH EINE RUNDE",
+            false,
+          );
+        }
+
+        function updateHUD() {
+          $("score").textContent = String(Math.floor(score)).padStart(6, "0");
+          $("details").textContent = `${kills} Abschüsse · Rekord ${record}`;
+          $("lives").textContent = "♥".repeat(lives) + "♡".repeat(3 - lives);
+          $("lives").setAttribute("aria-label", `${lives} Leben`);
+        }
+
+        function explode(x, y, color, amount = 24) {
+          for (let i = 0; i < amount; i++) {
+            const a = rand(0, Math.PI * 2);
+            const speed = rand(60, 260);
+            const life = rand(0.3, 0.8);
+            particles.push({
+              x,
+              y,
+              vx: Math.cos(a) * speed,
+              vy: Math.sin(a) * speed,
+              life,
+              maxLife: life,
+              size: rand(3, 8),
+              color: choose([color, "#ffca55", "#fff1bd"]),
+            });
+          }
+        }
+
+        function spawnEnemy() {
+          const lanes = [0, 1, 2, 3];
+          for (let i = lanes.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [lanes[i], lanes[j]] = [lanes[j], lanes[i]];
+          }
+
+          for (const lane of lanes) {
+            if (enemies.some((e) => e.lane === lane && e.y < 110)) continue;
+
+            enemies.push({
+              x: laneX(lane, -100),
+              y: -100,
+              lane,
+              speed: rand(120, 220) + Math.min(140, elapsed * 2.2),
+              color: choose(colors),
+            });
+            break;
+          }
+        }
+
+        function update(dt) {
+          if (state !== "playing" && state !== "over") return;
+
+          for (const p of particles) {
+            p.x += p.vx * dt;
+            p.y += p.vy * dt;
+            p.vy += 140 * dt;
+            p.life -= dt;
+          }
+          particles = particles.filter((p) => p.life > 0);
+          shake = Math.max(0, shake - dt);
+
+          if (state === "over") return;
+
+          elapsed += dt;
+          score += dt * 5;
+          distance += (330 + Math.min(130, elapsed * 2)) * dt;
+          fireTimer -= dt;
+          invulnerable = Math.max(0, invulnerable - dt);
+
+          const dx =
+            Number(keys.has("arrowright") || keys.has("d")) -
+            Number(keys.has("arrowleft") || keys.has("a"));
+          const dy =
+            Number(keys.has("arrowdown") || keys.has("s")) -
+            Number(keys.has("arrowup") || keys.has("w"));
+
+          player.x += clamp(dx + joyX, -1, 1) * 360 * dt;
+          player.y += clamp(dy + joyY, -1, 1) * 290 * dt;
+          player.y = clamp(player.y, Math.min(150, H / 3), H - 55);
+
+          const c = curve(player.y);
+          player.x = clamp(player.x, LEFT + c + 30, RIGHT + c - 30);
+
+          if ((keys.has(" ") || firePointers.size > 0) && fireTimer <= 0) {
+            bullets.push({ x: player.x, y: player.y - 48 });
+            fireTimer = 0.16;
+          }
+
+          for (const b of bullets) b.y -= 720 * dt;
+          bullets = bullets.filter((b) => b.y > -30);
+
+          spawnTimer -= dt;
+          if (spawnTimer <= 0) {
+            spawnEnemy();
+            spawnTimer =
+              Math.max(0.32, 0.95 - elapsed * 0.008) * rand(0.8, 1.2);
+          }
+
+          for (const e of enemies) {
+            e.y += e.speed * dt;
+            e.x = laneX(e.lane, e.y);
+          }
+
+          for (let i = bullets.length - 1; i >= 0; i--) {
+            const b = bullets[i];
+            const index = enemies.findIndex(
+              (e) => Math.abs(b.x - e.x) < 28 && Math.abs(b.y - e.y) < 47,
+            );
+
+            if (index !== -1) {
+              const e = enemies.splice(index, 1)[0];
+              bullets.splice(i, 1);
+              explode(e.x, e.y, e.color);
+              score += 100;
+              kills++;
+              shake = Math.max(shake, 0.12);
+            }
+          }
+
+          if (invulnerable <= 0) {
+            const index = enemies.findIndex(
+              (e) =>
+                Math.abs(e.x - player.x) < 49 && Math.abs(e.y - player.y) < 80,
+            );
+
+            if (index !== -1) {
+              const e = enemies.splice(index, 1)[0];
+              explode(e.x, e.y, e.color);
+              explode(player.x, player.y, "#36adff", 14);
+              lives--;
+              invulnerable = 1.6;
+              shake = 0.35;
+              if (lives <= 0) gameOver();
+            }
+          }
+
+          enemies = enemies.filter((e) => {
+            if (e.y < H + 100) return true;
+            score += 15;
+            return false;
+          });
+        }
+
+        function rect(x, y, w, h, color) {
+          ctx.fillStyle = color;
+          ctx.fillRect(x, y, w, h);
+        }
+
+        function polygon(points, fill, stroke = null, width = 1) {
+          ctx.beginPath();
+          ctx.moveTo(points[0][0], points[0][1]);
+          for (let i = 1; i < points.length; i++) {
+            ctx.lineTo(points[i][0], points[i][1]);
+          }
+          ctx.closePath();
+          ctx.fillStyle = fill;
+          ctx.fill();
+          if (stroke) {
+            ctx.strokeStyle = stroke;
+            ctx.lineWidth = width;
+            ctx.stroke();
+          }
+        }
+
+        function line(points, color, width) {
+          ctx.beginPath();
+          ctx.moveTo(points[0][0], points[0][1]);
+          for (let i = 1; i < points.length; i++) {
+            ctx.lineTo(points[i][0], points[i][1]);
+          }
+          ctx.strokeStyle = color;
+          ctx.lineWidth = width;
+          ctx.stroke();
+        }
+
+        function oval(x, y, rx, ry, color, stroke = null) {
+          ctx.beginPath();
+          ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
+          ctx.fillStyle = color;
+          ctx.fill();
+          if (stroke) {
+            ctx.strokeStyle = stroke;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          }
+        }
+
+        function drawCar(x, y, color, isPlayer = false) {
+          ctx.save();
+          ctx.translate(x, y);
+
+          oval(2, 7, 36, 47, "#10151d");
+
+          for (const side of [-1, 1]) {
+            for (const offset of [-25, 25]) {
+              rect(side * 26 - 5, offset - 11, 10, 22, "#090d14");
+            }
+          }
+
+          polygon(
+            [
+              [-22, -43],
+              [22, -43],
+              [27, -27],
+              [27, 34],
+              [20, 45],
+              [-20, 45],
+              [-27, 34],
+              [-27, -27],
+            ],
+            color,
+            "#d3e6f5",
+            2,
+          );
+
+          polygon(
+            [
+              [-18, -20],
+              [18, -20],
+              [15, -5],
+              [-15, -5],
+            ],
+            "#173248",
+            "#8dc8e8",
+          );
+
+          rect(-15, -3, 30, 22, color);
+
+          polygon(
+            [
+              [-15, 22],
+              [15, 22],
+              [19, 33],
+              [-19, 33],
+            ],
+            "#173248",
+            "#8dc8e8",
+          );
+
+          for (const side of [-1, 1]) {
+            rect(side * 16 - 5, -40, 10, 5, "#fff7bd");
+            rect(side * 16 - 5, 36, 10, 4, "#ff354e");
+          }
+
+          if (isPlayer) {
+            rect(-3, -39, 6, 16, "#eaf4ff");
+            rect(-3, -1, 6, 18, "#eaf4ff");
+
+            // Kleine Waffenhalterung auf der Motorhaube.
+            rect(-5, -50, 10, 14, "#a6bdd1");
+            rect(-2, -53, 4, 8, "#fff0b4");
+          }
+
+          ctx.restore();
+        }
+
+        function draw() {
+          rect(0, 0, W, H, "#18352c");
+
+          ctx.save();
+          if (shake > 0) ctx.translate(rand(-5, 5), rand(-3, 3));
+
+          const roadOffset = distance % 100;
+          const treeOffset = distance % 110;
+
+          for (const x of [65, 830]) {
+            for (let y = -110 + treeOffset; y < H + 110; y += 110) {
+              const tx = x + curve(y);
+              oval(tx + 5, y + 6, 27, 27, "#102b22");
+              oval(tx, y, 25, 25, "#24543a", "#306447");
+              oval(tx - 6, y - 5, 12, 12, "#2b6444");
+            }
+          }
+
+          const ys = [];
+          for (let y = -20; y < H + 20; y += 20) ys.push(y);
+          ys.push(H + 20);
+
+          for (const [edge, color] of [
+            [12, "#657180"],
+            [0, "#263141"],
+          ]) {
+            const points = ys.map((y) => [LEFT - edge + curve(y), y]);
+            for (let i = ys.length - 1; i >= 0; i--) {
+              const y = ys[i];
+              points.push([RIGHT + edge + curve(y), y]);
+            }
+            polygon(points, color);
+          }
+
+          for (const x of [LEFT + 7, RIGHT - 7]) {
+            line(
+              ys.map((y) => [x + curve(y), y]),
+              "#eff3ea",
+              3,
+            );
+          }
+
+          for (let lane = 1; lane < LANES; lane++) {
+            const x = LEFT + lane * LANE_WIDTH;
+            for (let y = -100 + roadOffset; y < H + 100; y += 100) {
+              const points = [0, 12, 24, 36, 48].map((offset) => {
+                const yy = y + offset;
+                return [x + curve(yy), yy];
+              });
+              line(points, "#a4aeba", 6);
+            }
+          }
+
+          for (const e of enemies) drawCar(e.x, e.y, e.color);
+
+          for (const b of bullets) {
+            line(
+              [
+                [b.x, b.y + 17],
+                [b.x, b.y - 7],
+              ],
+              "#ffb13b",
+              7,
+            );
+            line(
+              [
+                [b.x, b.y + 10],
+                [b.x, b.y - 7],
+              ],
+              "#fff9c4",
+              3,
+            );
+          }
+
+          const visible =
+            invulnerable <= 0 || Math.floor(invulnerable * 12) % 2 === 0;
+
+          if (player && visible && state !== "over") {
+            drawCar(player.x, player.y, "#36adff", true);
+          }
+
+          for (const p of particles) {
+            const size = (p.size * p.life) / p.maxLife;
+            oval(p.x, p.y, size, size, p.color);
+          }
+
+          ctx.restore();
+        }
+
+        // Touch-Joystick: ein Finger lenkt, ein zweiter kann gleichzeitig feuern.
+        const joystick = $("joystick");
+
+        function moveJoystick(event) {
+          const r = joystick.getBoundingClientRect();
+          const radius = r.width * 0.34;
+          let x = event.clientX - r.left - r.width / 2;
+          let y = event.clientY - r.top - r.height / 2;
+          const length = Math.hypot(x, y);
+
+          if (length > radius) {
+            x *= radius / length;
+            y *= radius / length;
+          }
+
+          joyX = x / radius;
+          joyY = y / radius;
+          if (Math.abs(joyX) < 0.08) joyX = 0;
+          if (Math.abs(joyY) < 0.08) joyY = 0;
+
+          $("stick").style.transform = `translate(${x}px, ${y}px)`;
+        }
+
+        joystick.addEventListener("pointerdown", (event) => {
+          event.preventDefault();
+          if (state !== "playing" || joystickPointer !== null) return;
+          joystickPointer = event.pointerId;
+          joystick.setPointerCapture(event.pointerId);
+          moveJoystick(event);
+        });
+
+        joystick.addEventListener("pointermove", (event) => {
+          if (event.pointerId === joystickPointer) moveJoystick(event);
+        });
+
+        function releaseJoystick(event) {
+          if (event.pointerId !== joystickPointer) return;
+          joystickPointer = null;
+          joyX = joyY = 0;
+          $("stick").style.transform = "translate(0px, 0px)";
+        }
+
+        for (const name of [
+          "pointerup",
+          "pointercancel",
+          "lostpointercapture",
+        ]) {
+          joystick.addEventListener(name, releaseJoystick);
+        }
+
+        const fire = $("fire");
+
+        fire.addEventListener("pointerdown", (event) => {
+          event.preventDefault();
+          if (state !== "playing") return;
+          fire.setPointerCapture(event.pointerId);
+          firePointers.add(event.pointerId);
+          fire.classList.add("active");
+        });
+
+        function releaseFire(event) {
+          firePointers.delete(event.pointerId);
+          fire.classList.toggle("active", firePointers.size > 0);
+        }
+
+        for (const name of [
+          "pointerup",
+          "pointercancel",
+          "lostpointercapture",
+        ]) {
+          fire.addEventListener(name, releaseFire);
+        }
+
+        // Keine Kontextmenüs oder Scrollgesten auf den Spielkontrollen.
+        for (const element of [canvas, joystick, fire]) {
+          element.addEventListener("contextmenu", (event) =>
+            event.preventDefault(),
+          );
+        }
+
+        const gameKeys = new Set([
+          "arrowleft",
+          "arrowright",
+          "arrowup",
+          "arrowdown",
+          "w",
+          "a",
+          "s",
+          "d",
+          " ",
+          "r",
+          "p",
+          "escape",
+        ]);
+
+        window.addEventListener("keydown", (event) => {
+          const key = event.key.toLowerCase();
+          if (!gameKeys.has(key)) return;
+          event.preventDefault();
+
+          if (key === "r" && !event.repeat) {
+            reset();
+            return;
+          }
+
+          if ((key === "p" || key === "escape") && !event.repeat) {
+            if (state === "playing") pauseGame();
+            else if (state === "paused") resumeGame();
+            return;
+          }
+
+          if (key === " " && state !== "playing" && !event.repeat) {
+            if (state === "paused") resumeGame();
+            else reset();
+            return;
+          }
+
+          if (state === "playing") keys.add(key);
+        });
+
+        window.addEventListener("keyup", (event) => {
+          keys.delete(event.key.toLowerCase());
+        });
+
+        $("play").addEventListener("click", () => {
+          if (state === "paused") resumeGame();
+          else reset();
+        });
+
+        $("restart").addEventListener("click", reset);
+
+        $("pause").addEventListener("click", () => {
+          if (state === "playing") pauseGame();
+          else if (state === "paused") resumeGame();
+        });
+
+        window.addEventListener("blur", () => {
+          clearInput();
+          pauseGame();
+        });
+
+        document.addEventListener("visibilitychange", () => {
+          if (document.hidden) {
+            clearInput();
+            pauseGame();
+          }
+        });
+
+        window.addEventListener("pagehide", saveRecord);
+        window.addEventListener("resize", resize);
+
+        if ("ResizeObserver" in window) {
+          new ResizeObserver(resize).observe(stage);
+        }
+
+        resize();
+        player = { x: 450 + curve(H - 110), y: H - 110 };
+        updateHUD();
+
+        // Feste Simulationsschritte: stabile Kollisionen auch auf schnellen Displays.
+        const STEP = 1 / 120;
+        let lastTime = performance.now();
+        let accumulator = 0;
+        let hudTimer = 0;
+
+        function frame(now) {
+          const dt = Math.min((now - lastTime) / 1000, 0.05);
+          lastTime = now;
+
+          if (state === "playing" || state === "over") {
+            accumulator += dt;
+            while (accumulator >= STEP) {
+              update(STEP);
+              accumulator -= STEP;
+            }
+          } else {
+            accumulator = 0;
+          }
+
+          hudTimer += dt;
+          if (hudTimer >= 0.1) {
+            updateHUD();
+            hudTimer = 0;
+          }
+
+          draw();
+          requestAnimationFrame(frame);
+        }
+
+        requestAnimationFrame(frame);
+      })();
+    </script>
+  </body>
+</html>
